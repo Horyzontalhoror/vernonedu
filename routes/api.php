@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProgramController;
 use App\Http\Controllers\Api\JadwalController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\TransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +36,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
 });
+
+// pemabayaran
+Route::middleware('auth:sanctum')->post('/create-transaction', [TransactionController::class, 'store']);
 
 /*
 |--------------------------------------------------------------------------

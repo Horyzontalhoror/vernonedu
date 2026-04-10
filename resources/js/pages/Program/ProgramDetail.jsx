@@ -1,6 +1,9 @@
 import { IconBase } from "react-icons";
+import { useNavigate } from "react-router-dom";
 
 export default function ProgramDetail({ data, loading, error, onClear }) {
+    const navigate = useNavigate();
+
   if (loading) {
     return (
       <aside className="rounded-2xl border border-dashed border-slate-200 bg-white/70 p-6 text-center text-sm text-slate-500">
@@ -76,72 +79,95 @@ export default function ProgramDetail({ data, loading, error, onClear }) {
 
   const materis = Array.isArray(data.materis) ? data.materis : [];
 
-  return (
-    <aside className="space-y-6">
-      <div className="rounded-2xl bg-gradient-to-br from-purple-100 via-white to-sky-100 p-6 shadow-lg">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">
-              {data.program?.nama || 'Program tidak tersedia'}
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold text-slate-900">{data.name}</h2>
-            <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-              {data.description || 'Deskripsi belum tersedia.'}
-            </p>
-          </div>
-          {onClear && (
-            <button
-              type="button"
-              className="rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-600 hover:bg-white"
-              onClick={onClear}
-            >
-              Tutup
-            </button>
-          )}
-        </div>
+    return (
+        <aside>
+            <div className="rounded-3xl bg-white shadow-lg border border-slate-100 overflow-hidden">
 
-        <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium">
-          <span className="rounded-full bg-white/70 px-3 py-1 text-slate-700">
-            Usia {data.usia || '-'}
-          </span>
-          {/* <span className="rounded-full border border-white/60 px-3 py-1 text-slate-600">
-            Slug: {data.slug}
-          </span> */}
-        </div>
-      </div>
+            {/* HEADER / HERO */}
+            <div className="bg-gradient-to-br from-purple-500/10 via-white to-sky-500/10 p-6">
+                <div className="flex items-start justify-between gap-4">
 
-      <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow">
-        <h3 className="text-lg font-semibold text-slate-900">Detail Program</h3>
-        <p className="mt-3 text-sm leading-relaxed text-slate-600">
-          {data.program.deskripsi || 'Deskripsi belum tersedia.'}
-        </p>
-      </div>
+                <div>
+                    <p className="text-xs uppercase tracking-wider text-slate-400">
+                    {data.program?.nama || "Program tidak tersedia"}
+                    </p>
 
-      <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow">
-        <h3 className="text-lg font-semibold text-slate-900">Biaya Reguler</h3>
-        <p className="mt-1 text-sm text-slate-500">Hubungi tim admin untuk penawaran terbaru.</p>
-        <button className="mt-4 w-full rounded-xl bg-purple-600 py-2 text-sm font-semibold text-white shadow hover:bg-purple-700">
-          Hubungi Admin
-        </button>
-      </div>
+                    <h2 className="mt-1 text-2xl font-bold text-slate-900">
+                    {data.name}
+                    </h2>
 
-      <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow">
-        <h3 className="text-lg font-semibold text-slate-900">Materi Pembelajaran</h3>
-        <div className="mt-4 space-y-4">
-          {materis.length ? (
-            materis.map((item) => (
-              <div key={item.id} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
-                <p className="text-sm font-semibold text-slate-900">{item.judul}</p>
-                {item.deskripsi && (
-                  <p className="text-xs text-slate-600">{item.deskripsi}</p>
+                    <p className="mt-3 text-sm text-slate-600 leading-relaxed max-w-md">
+                    {data.description || "Deskripsi belum tersedia."}
+                    </p>
+                </div>
+
+                {onClear && (
+                    <button
+                    type="button"
+                    onClick={onClear}
+                    className="text-sm text-slate-400 hover:text-red-500 transition"
+                    >
+                    ✕
+                    </button>
                 )}
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-slate-500">Materi belum tersedia.</p>
-          )}
-        </div>
-      </div>
-    </aside>
-  );
+                </div>
+
+                {/* TAG */}
+                <div className="mt-5 flex flex-wrap gap-2">
+                <span className="rounded-full bg-white shadow px-3 py-1 text-xs font-medium text-slate-700">
+                    Usia {data.usia || "-"}
+                </span>
+                </div>
+            </div>
+
+            {/* CONTENT */}
+            <div className="p-6 space-y-6">
+
+                {/* DETAIL */}
+                <div>
+                <h3 className="text-sm font-semibold text-slate-800">
+                    Detail Program
+                </h3>
+
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                    {data.program?.deskripsi || "Deskripsi belum tersedia."}
+                </p>
+                </div>
+
+                {/* DIVIDER */}
+                <div className="border-t"></div>
+
+                {/* CTA SECTION */}
+                <div className="flex flex-col gap-3">
+
+                <div className="flex justify-between items-center">
+                    <div>
+                    <p className="text-xs text-slate-400">
+                        Mulai kelas ini
+                    </p>
+                    <p className="text-lg font-semibold text-slate-900">
+                        Ambil Program
+                    </p>
+                    </div>
+                </div>
+
+                <button
+                    className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-blue-500 py-3 text-sm font-semibold text-white shadow hover:opacity-90 transition"
+                    onClick={() => navigate(`/checkout/${data.id}`)}
+                    // onClick={() => { console.log("CLICKED"); navigate(`/checkout/${data.id}`); }}
+                >
+
+                    Pembayaran
+                </button>
+
+                <p className="text-xs text-center text-slate-400">
+                    Anda akan diarahkan ke halaman pembayaran
+                </p>
+
+                </div>
+            </div>
+
+            </div>
+        </aside>
+    );
 }

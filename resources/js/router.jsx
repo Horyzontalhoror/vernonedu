@@ -14,6 +14,8 @@ import Announcement from "./pages/Dashboard/Announcement/Announcement";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import Checkout from "./pages/Checkout/Checkout";
+
 export default function Router() {
 
   const [user, setUser] = useState(null);
@@ -57,12 +59,21 @@ export default function Router() {
 
         {/* PROTECTED */}
         <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute user={user}>
-              <Dashboard user={user} />
+        path="/checkout/:id"
+        element={
+            <ProtectedRoute>
+            <Checkout />
             </ProtectedRoute>
-          }
+        }
+        />
+
+        <Route
+        path="/dashboard"
+        element={
+            <ProtectedRoute>
+            <Dashboard user={user} />
+            </ProtectedRoute>
+        }
         >
           <Route index element={<MyCourse />} />
           <Route path="calendar" element={<MyCalendar />} />
