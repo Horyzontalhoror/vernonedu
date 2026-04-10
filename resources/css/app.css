@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.fc {
+  font-size: 0.85rem;
+}
+
+.fc-toolbar-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.fc-button {
+  padding: 4px 8px !important;
+  font-size: 0.75rem !important;
+}
+
+.fc-daygrid-day-number {
+  font-size: 0.8rem;
+}
+
+.fc-event {
+  border-radius: 6px;
+  padding: 2px 4px;
+}
