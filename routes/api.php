@@ -39,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // pemabayaran
 Route::middleware('auth:sanctum')->post('/create-transaction', [TransactionController::class, 'store']);
+Route::post('/midtrans/callback', [TransactionController::class, 'callback']);
 
 /*
 |--------------------------------------------------------------------------
@@ -73,5 +74,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // logout
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/create-transaction', [TransactionController::class, 'createTransaction']);
 
 });

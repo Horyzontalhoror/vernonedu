@@ -13,76 +13,106 @@ import CertificateDetail from "./pages/Dashboard/Certificate/CertificateDetail";
 import Announcement from "./pages/Dashboard/Announcement/Announcement";
 
 import ProtectedRoute from "./components/ProtectedRoute";
-
 import Checkout from "./pages/Checkout/Checkout";
+import AuthModal from "./auth/AuthModal";
 
 export default function Router() {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [showAuth, setShowAuth] = useState(false);
 
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // 🔥 penting
+    // 🔥 ambil user
+    const fetchUser = async () => {
+        const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+        if (!token) {
+            setUser(null);
+            return;
+        }
 
-    if (!token) {
-      setLoading(false);
-      return;
+        try {
+            const res = await fetch("http://localhost:8000/api/me", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const data = await res.json();
+            setUser(data);
+        } catch {
+            localStorage.removeItem("token");
+            setUser(null);
+        }
+    };
+
+    useEffect(() => {
+        fetchUser().finally(() => setLoading(false));
+    }, []);
+
+    useEffect(() => {
+    const handler = () => setShowAuth(true);
+
+    window.addEventListener("open-auth", handler);
+    return () => window.removeEventListener("open-auth", handler);
+    }, []);
+
+    if (loading) {
+        return <div className="p-10">Loading...</div>;
     }
 
-    fetch("http://localhost:8000/api/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(res => res.json())
-      .then(data => setUser(data))
-      .catch(() => {
-        localStorage.removeItem("token");
-      })
-      .finally(() => setLoading(false)); // 🔥 selesai loading
-  }, []);
+    return (
+        <BrowserRouter>
+            <Routes>
+                {/* PUBLIC */}
+                <Route path="/" element={<Home />} />
+                <Route path="/program" element={<Program />} />
+                <Route path="/program/:slug" element={<Program />} />
+                <Route path="/jadwal" element={<Jadwal />} />
 
-  // 🔥 TUNGGU USER SELESAI LOAD
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+                {/* PROTECTED */}
+                <Route
+                    path="/checkout/:id"
+                    element={
+                        <ProtectedRoute
+                            user={user}
+                            onAuthRequired={() => setShowAuth(true)}
+                        >
+                            <Checkout />
+                        </ProtectedRoute>
+                    }
+                />
 
-  return (
-    <BrowserRouter>
-      <Routes>
+                <Route
+                    path="/dashboard"
+                    element={
+                        <ProtectedRoute
+                            user={user}
+                            onAuthRequired={() => setShowAuth(true)}
+                        >
+                            <Dashboard user={user} />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route index element={<MyCourse />} />
+                    <Route path="calendar" element={<MyCalendar />} />
+                    <Route path="certificate" element={<MyCertificate />} />
+                    <Route
+                        path="certificate/:slug"
+                        element={<CertificateDetail />}
+                    />
+                    <Route path="announcement" element={<Announcement />} />
+                </Route>
+            </Routes>
 
-        {/* PUBLIC */}
-        <Route path="/" element={<Home />} />
-        <Route path="/program" element={<Program />} />
-        <Route path="/program/:slug" element={<Program />} />
-        <Route path="/jadwal" element={<Jadwal />} />
-
-        {/* PROTECTED */}
-        <Route
-        path="/checkout/:id"
-        element={
-            <ProtectedRoute>
-            <Checkout />
-            </ProtectedRoute>
-        }
-        />
-
-        <Route
-        path="/dashboard"
-        element={
-            <ProtectedRoute>
-            <Dashboard user={user} />
-            </ProtectedRoute>
-        }
-        >
-          <Route index element={<MyCourse />} />
-          <Route path="calendar" element={<MyCalendar />} />
-          <Route path="certificate" element={<MyCertificate />} />
-          <Route path="certificate/:slug" element={<CertificateDetail />} />
-          <Route path="announcement" element={<Announcement />} />
-        </Route>
-
-      </Routes>
-    </BrowserRouter>
-  );
+            {/* 🔥 AUTH MODAL */}
+            <AuthModal
+                open={showAuth}
+                onClose={() => setShowAuth(false)}
+                onLoginSuccess={() => {
+                    fetchUser();
+                    setShowAuth(false);
+                }}
+            />
+        </BrowserRouter>
+    );
 }

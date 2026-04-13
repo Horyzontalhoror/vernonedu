@@ -22,7 +22,7 @@ class PembayaranForm
                             ->relationship('peserta', 'email')
                             ->searchable(['email', 'logUser.nama', 'logUser.no_telepon'])
                             ->preload()
-                            ->getOptionLabelFromRecordUsing(fn ($record) => ($record->logUser->nama ?? '-') . ' — ' . $record->email)
+                            ->getOptionLabelFromRecordUsing(fn ($record) => (optional($record->logUser)->nama ?? '-') . ' â€¢ ' . $record->email)
                             ->required(),
 
                         Select::make('sub_program_id')
@@ -38,13 +38,16 @@ class PembayaranForm
                             ->required(),
 
                         DatePicker::make('tanggal')
+                            ->default(now())
                             ->required(),
 
                         Select::make('metode')
                             ->options([
-                                'transfer' => 'Transfer',
-                                'cash' => 'Cash',
-                                'ewallet' => 'E-Wallet',
+                                'bank_transfer' => 'Bank Transfer',
+                                'gopay' => 'GoPay',
+                                'shopeepay' => 'ShopeePay',
+                                'qris' => 'QRIS',
+                                'credit_card' => 'Credit Card',
                             ])
                             ->required(),
 
@@ -54,7 +57,6 @@ class PembayaranForm
                                 'lunas' => 'Lunas',
                                 'gagal' => 'Gagal',
                             ])
-                            ->default('pending')
                             ->required(),
 
                         Textarea::make('keterangan')

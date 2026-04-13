@@ -25,6 +25,9 @@ class PembayaranResource extends Resource
     protected static string |BackedEnum|null $activeNavigationIcon = Heroicon::OutlinedArrowDownRight;
     protected static string | UnitEnum | null $navigationGroup = 'Operasional';
     protected static ?int $navigationSort = 1;
+    protected static ?string $navigationLabel = 'Pembayaran';
+    protected static ?string $pluralLabel = 'Pembayaran';
+    protected static ?string $label = 'Pembayaran';
 
     public static function form(Schema $schema): Schema
     {
@@ -57,4 +60,10 @@ class PembayaranResource extends Resource
             'edit' => EditPembayaran::route('/{record}/edit'),
         ];
     }
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
 }

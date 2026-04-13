@@ -9,7 +9,7 @@ import Pagination from "../../components/Program/Pagination";
 import SearchBar from "../../components/SearchBar";
 import Footer from "../../components/Footer";
 import ProgramDetail from "./ProgramDetail";
-
+import Checkout from "../Checkout/Checkout"
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Program() {
@@ -103,6 +103,8 @@ export default function Program() {
 
     navigate('/program');
   };
+
+  const [selectedProgram, setSelectedProgram] = useState(null);
 
   return (
     <div className="bg-gray-50 min-h-screen">

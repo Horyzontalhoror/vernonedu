@@ -9,7 +9,11 @@ class Transaction extends Model
     protected $fillable = [
         'user_id',
         'sub_program_id',
-        'status',
+        'order_id',
+        'amount',
+        'snap_token',
+        'transaction_status',
+        'payment_type',
     ];
 
     public function user()

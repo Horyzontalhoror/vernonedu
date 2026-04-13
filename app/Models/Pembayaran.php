@@ -12,7 +12,8 @@ class Pembayaran extends Model
         'jumlah',
         'status',
         'tanggal',
-        'metode'
+        'metode',
+        'keterangan'
     ];
     public function peserta()
     {

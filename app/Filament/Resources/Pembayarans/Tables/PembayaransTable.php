@@ -32,7 +32,13 @@ class PembayaransTable
                     ->badge(),
 
                 TextColumn::make('status')
-                    ->badge(),
+                    ->badge()
+                    ->colors([
+                        'warning' => 'pending',
+                        'success' => 'lunas',
+                        'danger' => 'gagal',
+                    ]),
+
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
