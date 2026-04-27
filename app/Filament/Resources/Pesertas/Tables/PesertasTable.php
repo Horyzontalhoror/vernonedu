@@ -21,7 +21,9 @@ class PesertasTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('email')
+                TextColumn::make('logUser.email')
+                    ->label('Email')
+                    ->sortable()
                     ->searchable(),
 
                 TextColumn::make('logUser.no_telepon')

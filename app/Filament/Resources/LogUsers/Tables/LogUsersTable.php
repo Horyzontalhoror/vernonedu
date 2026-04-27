@@ -68,7 +68,6 @@ class LogUsersTable
                                 $record->peserta()->firstOrCreate(
                                     [],
                                     [
-                                        'email' => null,
                                         'jenis_kelamin' => null,
                                         'tanggal_lahir' => null,
                                         'alamat' => null,

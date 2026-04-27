@@ -17,15 +17,15 @@ class Program extends Model
     }
 
 
-    protected static function boot()
-    {
-        parent::boot();
+    // protected static function boot()
+    // {
+    //     parent::boot();
 
-        static::creating(function ($program) {
-            $slug = Str::slug($program->nama);
-            $count = \App\Models\Program::where('slug', 'LIKE', "$slug%")->count();
+    //     static::creating(function ($program) {
+    //         $slug = Str::slug($program->nama);
+    //         $count = \App\Models\Program::where('slug', 'LIKE', "$slug%")->count();
 
-            $program->slug = $count ? "{$slug}-{$count}" : $slug;
-        });
-    }
+    //         $program->slug = $count ? "{$slug}-{$count}" : $slug;
+    //     });
+    // }
 }

@@ -11,41 +11,43 @@ class EditPeserta extends EditRecord
 {
     protected static string $resource = PesertaResource::class;
 
-    protected function mutateFormDataBeforeFill(array $data): array
-    {
-        $logUser = $this->record->logUser;
+    // protected function mutateFormDataBeforeFill(array $data): array
+    // {
+    //     $logUser = $this->record->logUser;
 
-        $data['nama'] = $logUser->nama ?? null;
-        $data['no_telepon'] = $logUser->no_telepon ?? null;
-        $data['status'] = $logUser->status ?? 'active';
-        $data['password'] = null;
+    //     $data['nama'] = $logUser->nama ?? null;
+    //     $data['email'] = $logUser->email ?? null;
+    //     $data['no_telepon'] = $logUser->no_telepon ?? null;
+    //     $data['status'] = $logUser->status ?? 'active';
+    //     $data['password'] = null;
 
-        return $data;
-    }
+    //     return $data;
+    // }
 
-    protected function mutateFormDataBeforeSave(array $data): array
-    {
-        $logUser = $this->record->logUser ?? new LogUser();
+    // protected function mutateFormDataBeforeSave(array $data): array
+    // {
+    //     $logUser = $this->record->logUser ?? new LogUser();
 
-        $logUser->fill([
-            'nama' => $data['nama'] ?? $logUser->nama,
-            'no_telepon' => $data['no_telepon'] ?? $logUser->no_telepon,
-            'status' => $data['status'] ?? $logUser->status ?? 'active',
-        ]);
+    //     $logUser->fill([
+    //         'nama' => $data['nama'] ?? $logUser->nama,
+    //         'email' => $data['email'] ?? $logUser->email,
+    //         'no_telepon' => $data['no_telepon'] ?? $logUser->no_telepon,
+    //         'status' => $data['status'] ?? $logUser->status ?? 'active',
+    //     ]);
 
-        if (! empty($data['password'])) {
-            $logUser->password = Hash::make($data['password']);
-        }
+    //     if (! empty($data['password'])) {
+    //         $logUser->password = Hash::make($data['password']);
+    //     }
 
-        if (! $logUser->exists) {
-            $logUser->save();
-            $this->record->log_user_id = $logUser->id;
-        } else {
-            $logUser->save();
-        }
+    //     if (! $logUser->exists) {
+    //         $logUser->save();
+    //         $this->record->log_user_id = $logUser->id;
+    //     } else {
+    //         $logUser->save();
+    //     }
 
-        unset($data['nama'], $data['no_telepon'], $data['status'], $data['password']);
+    //     unset($data['nama'], $data['no_telepon'], $data['status'], $data['password']);
 
-        return $data;
-    }
+    //     return $data;
+    // }
 }

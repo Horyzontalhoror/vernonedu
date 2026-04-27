@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\LogUser;
-use App\Models\Peserta;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
@@ -17,28 +16,19 @@ class AuthController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:log_users,email',
             'no_telepon' => 'required|string|unique:log_users,no_telepon',
             'password' => 'required|min:6|confirmed',
         ]);
 
-        // 🔥 MODE DEV (optional)
-        // ganti ke 'pending' kalau sudah production
-        $status = 'pending'; // atau 'active' untuk testing cepat
+        $status = 'pending'; // atau 'active' untuk testing
 
         $user = LogUser::create([
             'nama' => $request->nama,
+            'email' => $request->email, // ✅ tambah email
             'no_telepon' => $request->no_telepon,
             'password' => Hash::make($request->password),
             'status' => $status,
-        ]);
-
-        // buat peserta kosong
-        Peserta::create([
-            'log_user_id' => $user->id,
-            'email' => null,
-            'jenis_kelamin' => null,
-            'tanggal_lahir' => null,
-            'alamat' => null,
         ]);
 
         return response()->json([
@@ -49,21 +39,24 @@ class AuthController extends Controller
     }
 
     /**
-     * 🔹 LOGIN
+     * 🔹 LOGIN (EMAIL ATAU NO HP)
      */
     public function login(Request $request)
     {
         $request->validate([
-            'no_telepon' => 'required',
+            'login' => 'required', // ✅ bukan no_telepon lagi
             'password' => 'required',
         ]);
 
-        $user = LogUser::where('no_telepon', $request->no_telepon)->first();
+        // 🔍 cari user berdasarkan email ATAU no telepon
+        $user = LogUser::where('no_telepon', $request->login)
+            ->orWhere('email', $request->login)
+            ->first();
 
         // ❌ user tidak ditemukan
         if (!$user) {
             return response()->json([
-                'message' => 'Nomor telepon tidak terdaftar'
+                'message' => 'Email atau nomor telepon tidak terdaftar'
             ], 404);
         }
 

@@ -1,47 +1,38 @@
-export default function ScheduleDetail(){
+export default function ScheduleDetail({ jadwals, selectedDate }) {
 
-  return(
+  const filtered = jadwals.filter(j =>
+    new Date(j.tanggal).getDate() === selectedDate
+  );
 
-    <div className="flex flex-1">
+  if (!selectedDate) {
+    return <p className="p-6 text-gray-500">Pilih tanggal</p>;
+  }
 
-      {/* date column */}
+  if (filtered.length === 0) {
+    return <p className="p-6 text-gray-500">Tidak ada jadwal</p>;
+  }
 
-      <div className="p-6 border-r w-24 text-center">
+  return (
+    <div className="p-6 flex-1">
 
-        <div className="text-gray-500">
-          Fri
+      {filtered.map((item, i) => (
+        <div key={i} className="mb-4">
+
+          <h3 className="font-semibold">
+            {item.sub_program?.name}
+          </h3>
+
+          <p className="text-gray-500">
+            ⏰ {item.waktu_mulai} - {item.waktu_selesai}
+          </p>
+
+          <p className="text-gray-500">
+            📍 {item.lokasi}
+          </p>
+
         </div>
-
-        <div className="text-4xl font-bold mt-2">
-          24
-        </div>
-
-      </div>
-
-      {/* schedule */}
-
-      <div className="p-6 flex-1">
-
-        <h3 className="font-semibold">
-
-          Entrepreneurship
-          <span className="text-gray-500">
-            {" "}– Business Creation
-          </span>
-
-        </h3>
-
-        <p className="text-gray-500 mt-4">
-          ⏰ 09:00 - 11:00
-        </p>
-
-        <p className="text-gray-500 mt-2">
-          📍 VernonEdu Campus Sutoyo - Ruang A
-        </p>
-
-      </div>
+      ))}
 
     </div>
-
-  )
+  );
 }

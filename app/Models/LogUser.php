@@ -15,6 +15,7 @@ class LogUser extends Model
 
     protected $fillable = [
         'nama',
+        'email',
         'no_telepon',
         'password',
         'status',

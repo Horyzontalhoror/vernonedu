@@ -11,7 +11,6 @@ class Peserta extends Model
 {
     protected $fillable = [
         'log_user_id',
-        'email',
         'jenis_kelamin',
         'tanggal_lahir',
         'alamat',
@@ -25,6 +24,7 @@ class Peserta extends Model
 
     protected $appends = [
         'nama',
+        'email',
         'no_telepon',
     ];
 
@@ -54,6 +54,11 @@ class Peserta extends Model
     public function getNamaAttribute(): ?string
     {
         return $this->logUser->nama ?? null;
+    }
+
+    public function getEmailAttribute(): ?string
+    {
+        return $this->logUser?->email;
     }
 
     public function getNoTeleponAttribute(): ?string

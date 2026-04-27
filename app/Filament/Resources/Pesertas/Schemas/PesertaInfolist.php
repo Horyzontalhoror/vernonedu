@@ -17,7 +17,8 @@ class PesertaInfolist
                         TextEntry::make('logUser.nama')
                             ->label('Nama'),
 
-                        TextEntry::make('email'),
+                        TextEntry::make('logUser.email')
+                            ->label('Email'),
 
                         TextEntry::make('logUser.no_telepon')
                             ->label('No Telepon'),

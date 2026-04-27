@@ -1,37 +1,52 @@
+import { useEffect, useState } from "react";
 import CalendarGrid from "../../../components/dashboard/Calendar/CalendarGrid";
 import ScheduleDetail from "../../../components/dashboard/Calendar/ScheduleDetail";
 
-export default function MyCalendar(){
+export default function MyCalendar() {
+  const [jadwals, setJadwals] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
 
-  return(
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
+        const res = await fetch("http://localhost:8000/api/my-schedule", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        setJadwals(data);
+
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return (
     <div>
 
-      <h1 className="text-2xl font-bold">
-        My Calendar
-      </h1>
+      <h1 className="text-2xl font-bold">My Calendar</h1>
 
-      <div className="flex items-center gap-4 mt-6">
+      <div className="mt-6 bg-white rounded-xl shadow flex">
 
-        <button className="bg-orange-400 text-white px-4 py-2 rounded-lg">
-          TODAY
-        </button>
+        <CalendarGrid
+          jadwals={jadwals}
+          onSelectDate={setSelectedDate}
+        />
 
-        <span className="text-gray-600">
-          October 2025
-        </span>
-
-      </div>
-
-      <div className="mt-6 bg-white rounded-xl shadow border border-purple-200 flex">
-
-        <CalendarGrid/>
-
-        <ScheduleDetail/>
+        <ScheduleDetail
+          jadwals={jadwals}
+          selectedDate={selectedDate}
+        />
 
       </div>
 
     </div>
-
-  )
+  );
 }
