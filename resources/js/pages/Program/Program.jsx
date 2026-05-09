@@ -9,7 +9,7 @@ import Pagination from "../../components/Program/Pagination";
 import SearchBar from "../../components/SearchBar";
 import Footer from "../../components/Footer";
 import ProgramDetail from "./ProgramDetail";
-import Checkout from "../Checkout/Checkout"
+// import Checkout from "../Checkout/Checkout"
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Program() {
@@ -22,6 +22,19 @@ export default function Program() {
   const [detail, setDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState(null);
+  const [search, setSearch] = useState("");
+
+    const filteredCourses = courses.filter((course) => {
+
+    const keyword = search.toLowerCase();
+
+    return (
+        course.name?.toLowerCase().includes(keyword) ||
+        course.description?.toLowerCase().includes(keyword) ||
+        course.usia?.toLowerCase().includes(keyword)
+    );
+
+    });
 
   useEffect(() => {
     if (!active) {
@@ -104,7 +117,7 @@ export default function Program() {
     navigate('/program');
   };
 
-  const [selectedProgram, setSelectedProgram] = useState(null);
+//   const [selectedProgram, setSelectedProgram] = useState(null);
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -112,7 +125,10 @@ export default function Program() {
       <AnnouncementBar />
       <Navbar />
 
-      <SearchBar />
+    <SearchBar
+    search={search}
+    setSearch={setSearch}
+    />
 
       <section className="text-center mt-14">
         <h1 className="text-4xl font-bold">Cari Kelas Berdasarkan Program!</h1>
@@ -131,13 +147,15 @@ export default function Program() {
               <div className="text-center text-red-500">{error}</div>
             )}
 
-            {!loading && !error && courses.length === 0 && active && (
-              <div className="text-center text-gray-500">Belum ada sub program untuk program ini.</div>
+            {!loading && !error && filteredCourses.length === 0 && active && (
+              <div className="text-center text-gray-500">{search
+                ? `Tidak ditemukan hasil untuk "${search}".`
+                : "Belum ada sub program untuk program ini."}</div>
             )}
 
-            {!loading && !error && courses.length > 0 && (
+            {!loading && !error && filteredCourses.length > 0 && (
               <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {courses.map((course) => (
+                {filteredCourses.map((course) => (
                   <CourseCard
                     key={course.slug}
                     title={course.name}
