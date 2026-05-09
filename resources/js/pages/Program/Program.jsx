@@ -144,6 +144,8 @@ export default function Program() {
                     slug={course.slug}
                     description={course.description}
                     usia={course.usia}
+                    harga={course.harga}
+                    image_url={course.image_url}
                     isActive={slug === course.slug}
                     onSelect={handleCourseSelect}
                   />

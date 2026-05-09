@@ -33,22 +33,15 @@ export default function ProgramDetail({ data, loading, error, onClear }) {
         return (
             <aside className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
 
-            {/* Icon */}
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-100">
-                <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-8 w-8 text-purple-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                >
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 6v6l4 2M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"
-                />
-                </svg>
+            {/* Placeholder Image */}
+            <div className="h-52 w-full overflow-hidden rounded-xl bg-gray-100">
+
+            <img
+                src="https://placehold.co/600x400?text=Sub+Program"
+                alt="Sub Program"
+                className="h-full w-full object-cover"
+            />
+
             </div>
 
             {/* Title */}
@@ -65,8 +58,19 @@ export default function ProgramDetail({ data, loading, error, onClear }) {
             {/* Optional hint / CTA */}
             <div className="mt-6 flex items-center gap-2 text-xs text-slate-400">
 
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+            <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+            >
+            <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"
+            />
             </svg>
 
             <span>Pilih dari daftar di sebelah kiri</span>

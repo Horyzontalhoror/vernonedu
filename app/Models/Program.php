@@ -10,6 +10,7 @@ class Program extends Model
     protected $fillable = [
         'nama',
         'deskripsi',
+        'image_url'
     ];
     public function subPrograms()
     {

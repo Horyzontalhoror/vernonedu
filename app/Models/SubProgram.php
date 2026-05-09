@@ -3,34 +3,60 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SubProgram extends Model
 {
-    //filable
+    /*
+    |--------------------------------------------------------------------------
+    | FILLABLE
+    |--------------------------------------------------------------------------
+    */
+
     protected $fillable = [
         'program_id',
         'name',
         'slug',
         'description',
         'usia',
-        'slug',
+        'harga',
+        'image_url',
     ];
-    public function program()
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELATIONS
+    |--------------------------------------------------------------------------
+    */
+
+    public function program(): BelongsTo
     {
-        return $this->belongsTo(Program::class);
+        return $this->belongsTo(
+            Program::class
+        );
     }
 
-    public function pesertas()
+    public function pesertas(): BelongsToMany
     {
-        return $this->belongsToMany(Peserta::class, 'enrollments')
-            ->withTimestamps();
+        return $this->belongsToMany(
+            Peserta::class,
+            'enrollments'
+        )->withTimestamps();
     }
-    public function materis()
+
+    public function materis(): HasMany
     {
-        return $this->hasMany(Materi::class);
+        return $this->hasMany(
+            Materi::class
+        );
     }
-    public function certificates()
+
+    public function certificates(): HasMany
     {
-        return $this->hasMany(Certificate::class);
+        return $this->hasMany(
+            Certificate::class
+        );
     }
 }

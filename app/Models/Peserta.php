@@ -7,17 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Log;
 
 class Peserta extends Model
 {
     // =========================
-    // 🔥 FIELD YANG BOLEH DIISI
+    // FIELD
     // =========================
     protected $fillable = [
         'log_user_id',
-        'user_id',           // optional (kalau masih dipakai)
-        'sub_program_id',    // 🔥 WAJIB (fix utama)
         'status',
         'jenis_kelamin',
         'tanggal_lahir',
@@ -39,20 +36,19 @@ class Peserta extends Model
     ];
 
     // =========================
-    // 🔥 GUARD (ANTI DATA KOSONG)
+    // GUARD
     // =========================
     protected static function booted()
     {
         static::creating(function ($model) {
 
-            if (!$model->log_user_id || !$model->sub_program_id) {
-                throw new \Exception('Peserta harus punya log_user_id & sub_program_id');
-            }
+            if (!$model->log_user_id) {
 
-            // debug siapa yang create (opsional, bisa dihapus nanti)
-            Log::info('CREATE PESERTA', [
-                'data' => $model->toArray(),
-            ]);
+                throw new \Exception(
+                    'Peserta harus punya log_user_id'
+                );
+
+            }
         });
     }
 
@@ -62,25 +58,40 @@ class Peserta extends Model
 
     public function logUser(): BelongsTo
     {
-        return $this->belongsTo(LogUser::class, 'log_user_id');
+        return $this->belongsTo(
+            LogUser::class,
+            'log_user_id'
+        );
     }
 
-    public function subProgram(): BelongsTo
-    {
-        return $this->belongsTo(SubProgram::class);
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | MANY TO MANY COURSE
+    |--------------------------------------------------------------------------
+    */
 
     public function subPrograms(): BelongsToMany
     {
-        return $this->belongsToMany(SubProgram::class, 'enrollments')
-            ->withTimestamps();
+        return $this->belongsToMany(
+            SubProgram::class,
+            'enrollments'
+        )->withTimestamps();
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROGRESS MATERI
+    |--------------------------------------------------------------------------
+    */
 
     public function materis(): BelongsToMany
     {
-        return $this->belongsToMany(Materi::class, 'progresses')
-            ->withPivot('status', 'tanggal')
-            ->withTimestamps();
+        return $this->belongsToMany(
+            Materi::class,
+            'progresses'
+        )
+        ->withPivot('status', 'tanggal')
+        ->withTimestamps();
     }
 
     public function certificates(): HasMany
@@ -89,12 +100,12 @@ class Peserta extends Model
     }
 
     // =========================
-    // 🔥 ACCESSOR
+    // ACCESSOR
     // =========================
 
     public function getNamaAttribute(): ?string
     {
-        return $this->logUser->nama ?? null;
+        return $this->logUser?->nama;
     }
 
     public function getEmailAttribute(): ?string
@@ -104,34 +115,55 @@ class Peserta extends Model
 
     public function getNoTeleponAttribute(): ?string
     {
-        return $this->logUser->no_telepon ?? null;
+        return $this->logUser?->no_telepon;
     }
 
     // =========================
-    // 🔥 PROGRESS
+    // PROGRESS
     // =========================
 
     public function getProgressBySubProgram($subProgramId)
     {
-        $total = Materi::where('sub_program_id', $subProgramId)->count();
+        $total = Materi::where(
+            'sub_program_id',
+            $subProgramId
+        )->count();
 
         $selesai = $this->materis()
-            ->where('sub_program_id', $subProgramId)
-            ->wherePivot('status', 'selesai')
+            ->where(
+                'sub_program_id',
+                $subProgramId
+            )
+            ->wherePivot(
+                'status',
+                'selesai'
+            )
             ->count();
 
-        return $total > 0 ? round(($selesai / $total) * 100) : 0;
+        return $total > 0
+            ? round(($selesai / $total) * 100)
+            : 0;
     }
 
     public function isSubProgramCompleted($subProgramId)
     {
-        $total = Materi::where('sub_program_id', $subProgramId)->count();
+        $total = Materi::where(
+            'sub_program_id',
+            $subProgramId
+        )->count();
 
         $selesai = $this->materis()
-            ->where('sub_program_id', $subProgramId)
-            ->wherePivot('status', 'selesai')
+            ->where(
+                'sub_program_id',
+                $subProgramId
+            )
+            ->wherePivot(
+                'status',
+                'selesai'
+            )
             ->count();
 
-        return $total > 0 && $total === $selesai;
+        return $total > 0 &&
+               $total === $selesai;
     }
 }
