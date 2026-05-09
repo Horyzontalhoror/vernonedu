@@ -60,7 +60,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
 
     // 💳 TRANSACTION
-    Route::post('/create-transaction', [TransactionController::class, 'store']);
+    Route::post('/create-transaction', [TransactionController::class, 'createTransaction']);
+    Route::post('/callback', [TransactionController::class, 'callback']);
 
     // 🎓 MY COURSES (🔥 INI YANG KAMU BUTUHKAN)
     Route::get('/my-courses', [CourseController::class, 'myCourses']);

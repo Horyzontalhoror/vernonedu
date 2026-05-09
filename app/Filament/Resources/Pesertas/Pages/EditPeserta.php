@@ -11,43 +11,54 @@ class EditPeserta extends EditRecord
 {
     protected static string $resource = PesertaResource::class;
 
-    // protected function mutateFormDataBeforeFill(array $data): array
-    // {
-    //     $logUser = $this->record->logUser;
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $logUser = $this->record->logUser;
 
-    //     $data['nama'] = $logUser->nama ?? null;
-    //     $data['email'] = $logUser->email ?? null;
-    //     $data['no_telepon'] = $logUser->no_telepon ?? null;
-    //     $data['status'] = $logUser->status ?? 'active';
-    //     $data['password'] = null;
+        $data['nama'] = $logUser->nama ?? null;
+        $data['email'] = $logUser->email ?? null;
+        $data['no_telepon'] = $logUser->no_telepon ?? null;
+        $data['status'] = $logUser->status ?? 'active';
+        $data['password'] = null;
 
-    //     return $data;
-    // }
+        return $data;
+    }
 
-    // protected function mutateFormDataBeforeSave(array $data): array
-    // {
-    //     $logUser = $this->record->logUser ?? new LogUser();
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $logUser = $this->record->logUser;
 
-    //     $logUser->fill([
-    //         'nama' => $data['nama'] ?? $logUser->nama,
-    //         'email' => $data['email'] ?? $logUser->email,
-    //         'no_telepon' => $data['no_telepon'] ?? $logUser->no_telepon,
-    //         'status' => $data['status'] ?? $logUser->status ?? 'active',
-    //     ]);
+        if (!$logUser) {
+            throw new \Exception("LogUser tidak ditemukan");
+        }
 
-    //     if (! empty($data['password'])) {
-    //         $logUser->password = Hash::make($data['password']);
-    //     }
+        $logUser->fill([
+            'nama' => !empty($data['nama']) ? $data['nama'] : $logUser->nama,
+            'email' => !empty($data['email']) ? $data['email'] : $logUser->email,
+            'no_telepon' => !empty($data['no_telepon']) ? $data['no_telepon'] : $logUser->no_telepon,
+            'status' => $data['status'] ?? $logUser->status ?? 'active',
+        ]);
 
-    //     if (! $logUser->exists) {
-    //         $logUser->save();
-    //         $this->record->log_user_id = $logUser->id;
-    //     } else {
-    //         $logUser->save();
-    //     }
+        if (!empty($data['password'])) {
+            $logUser->password = Hash::make($data['password']);
+        }
 
-    //     unset($data['nama'], $data['no_telepon'], $data['status'], $data['password']);
+        $logUser->save();
 
-    //     return $data;
-    // }
+        // 🔥 pastikan relasi aman
+        if ($this->record->log_user_id !== $logUser->id) {
+            $this->record->log_user_id = $logUser->id;
+            $this->record->save();
+        }
+
+        unset(
+            $data['nama'],
+            $data['email'],
+            $data['no_telepon'],
+            $data['status'],
+            $data['password']
+        );
+
+        return $data;
+    }
 }

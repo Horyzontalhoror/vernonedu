@@ -12,34 +12,73 @@ class CourseController extends Controller
     {
         $user = $request->user();
 
-        // ambil peserta dari user login
-        $peserta = Peserta::where('log_user_id', $user->id)->first();
+        // ambil peserta login
+        $peserta = Peserta::where(
+            'log_user_id',
+            $user->id
+        )->first();
 
         if (!$peserta) {
             return response()->json([]);
         }
 
-        // ambil kelas yang diikuti
-        $subPrograms = $peserta->subPrograms()->with('materis')->get();
+        // ambil course yang diikuti
+        $subPrograms = $peserta
+            ->subPrograms()
+            ->with('materis')
+            ->get();
 
-        $result = $subPrograms->map(function ($subProgram) use ($peserta) {
+        $result = $subPrograms->map(function (
+            $subProgram
+        ) use ($peserta) {
 
             // total materi
-            $total = $subProgram->materis->count();
+            $totalMateri =
+                $subProgram->materis->count();
 
             // materi selesai
-            $selesai = $peserta->materis()
-                ->where('sub_program_id', $subProgram->id)
-                ->wherePivot('status', 'selesai')
+            $materiSelesai = $peserta
+                ->materis()
+                ->where(
+                    'sub_program_id',
+                    $subProgram->id
+                )
+                ->wherePivot(
+                    'status',
+                    'selesai'
+                )
                 ->count();
 
-            $progress = $total > 0
-                ? round(($selesai / $total) * 100)
+            // progress
+            $progress = $totalMateri > 0
+                ? round(
+                    ($materiSelesai / $totalMateri) * 100
+                  )
                 : 0;
 
             return [
+
+                'id' => $subProgram->id,
+
                 'title' => $subProgram->name,
+
+                'slug' => $subProgram->slug,
+
+                'description' =>
+                    $subProgram->description,
+
+                'usia' => $subProgram->usia,
+
+                'harga' => $subProgram->harga,
+
                 'progress' => $progress,
+
+                'total_materi' => $totalMateri,
+
+                'materi_selesai' => $materiSelesai,
+
+                'created_at' =>
+                    $subProgram->created_at,
             ];
         });
 

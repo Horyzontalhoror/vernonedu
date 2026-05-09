@@ -2,15 +2,23 @@
 
 namespace App\Models;
 
+use App\Models\Materi;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Log;
 
 class Peserta extends Model
 {
+    // =========================
+    // 🔥 FIELD YANG BOLEH DIISI
+    // =========================
     protected $fillable = [
         'log_user_id',
+        'user_id',           // optional (kalau masih dipakai)
+        'sub_program_id',    // 🔥 WAJIB (fix utama)
+        'status',
         'jenis_kelamin',
         'tanggal_lahir',
         'alamat',
@@ -20,17 +28,46 @@ class Peserta extends Model
         'tanggal_lahir' => 'date',
     ];
 
+    // auto eager load
     protected $with = ['logUser'];
 
+    // accessor otomatis
     protected $appends = [
         'nama',
         'email',
         'no_telepon',
     ];
 
+    // =========================
+    // 🔥 GUARD (ANTI DATA KOSONG)
+    // =========================
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+
+            if (!$model->log_user_id || !$model->sub_program_id) {
+                throw new \Exception('Peserta harus punya log_user_id & sub_program_id');
+            }
+
+            // debug siapa yang create (opsional, bisa dihapus nanti)
+            Log::info('CREATE PESERTA', [
+                'data' => $model->toArray(),
+            ]);
+        });
+    }
+
+    // =========================
+    // RELASI
+    // =========================
+
     public function logUser(): BelongsTo
     {
-        return $this->belongsTo(LogUser::class);
+        return $this->belongsTo(LogUser::class, 'log_user_id');
+    }
+
+    public function subProgram(): BelongsTo
+    {
+        return $this->belongsTo(SubProgram::class);
     }
 
     public function subPrograms(): BelongsToMany
@@ -51,6 +88,10 @@ class Peserta extends Model
         return $this->hasMany(Certificate::class);
     }
 
+    // =========================
+    // 🔥 ACCESSOR
+    // =========================
+
     public function getNamaAttribute(): ?string
     {
         return $this->logUser->nama ?? null;
@@ -65,6 +106,10 @@ class Peserta extends Model
     {
         return $this->logUser->no_telepon ?? null;
     }
+
+    // =========================
+    // 🔥 PROGRESS
+    // =========================
 
     public function getProgressBySubProgram($subProgramId)
     {

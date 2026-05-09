@@ -13,16 +13,30 @@ class CreatePeserta extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        // 🔥 VALIDASI MINIMAL (biar tidak silent error)
+        if (empty($data['password'])) {
+            throw new \Exception('Password wajib diisi');
+        }
+
         $logUser = LogUser::create([
             'nama' => $data['nama'] ?? null,
+            'email' => $data['email'] ?? null,
             'no_telepon' => $data['no_telepon'] ?? null,
             'status' => $data['status'] ?? 'active',
             'password' => Hash::make($data['password']),
         ]);
 
+        // 🔥 RELASI
         $data['log_user_id'] = $logUser->id;
 
-        unset($data['nama'], $data['no_telepon'], $data['status'], $data['password']);
+        // 🔥 JANGAN masuk ke tabel pesertas
+        unset(
+            $data['nama'],
+            $data['email'],
+            $data['no_telepon'],
+            $data['status'],
+            $data['password']
+        );
 
         return $data;
     }

@@ -14,28 +14,42 @@ class PembayaranInfolist
             ->components([
                 Section::make('Detail Pembayaran')
                     ->schema([
-                        TextEntry::make('peserta.nama')
-                            ->label('Peserta'),
+
+                        // 🔥 DEBUG (boleh dihapus nanti)
+                        TextEntry::make('debug')
+                            ->formatStateUsing(function ($state, $record) {
+                                // dd($record->toArray());
+                                return '';
+                            }),
+
+                        // 🔥 Nama dari log_users
+                        TextEntry::make('logUser.nama')
+                            ->label('Peserta')
+                            ->default('-'),
 
                         TextEntry::make('subProgram.name')
-                            ->label('Kelas'),
+                            ->label('Kelas')
+                            ->default('-'),
 
+                        // 🔥 dari transactions
                         TextEntry::make('jumlah')
+                            ->label('Jumlah')
                             ->money('IDR'),
 
+                        TextEntry::make('metode')
+                            ->label('Metode'),
+
+                        TextEntry::make('status')
+                            ->label('Status'),
+
                         TextEntry::make('tanggal')
-                            ->date(),
+                            ->label('Tanggal')
+                            ->dateTime(),
 
-                        TextEntry::make('metode'),
-
-                        TextEntry::make('status'),
-
-                        TextEntry::make('keterangan')
-                            ->columnSpanFull()
-                            ->wrap(),
                         TextEntry::make('created_at')
                             ->dateTime()
                             ->placeholder('-'),
+
                         TextEntry::make('updated_at')
                             ->dateTime()
                             ->placeholder('-'),
