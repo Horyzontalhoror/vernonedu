@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
+
 use Illuminate\Http\Request;
-use App\Models\Peserta;
+
+use App\Models\Transaction;
 
 class CourseController extends Controller
 {
@@ -12,76 +14,107 @@ class CourseController extends Controller
     {
         $user = $request->user();
 
-        // ambil peserta login
-        $peserta = Peserta::where(
-            'log_user_id',
-            $user->id
-        )->first();
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL TRANSAKSI SUKSES
+        |--------------------------------------------------------------------------
+        */
 
-        if (!$peserta) {
-            return response()->json([]);
-        }
+        $transactions = Transaction::with([
+                'subProgram.materis'
+            ])
 
-        // ambil course yang diikuti
-        $subPrograms = $peserta
-            ->subPrograms()
-            ->with('materis')
+            ->where('user_id', $user->id)
+
+            ->whereIn('transaction_status', [
+                'settlement',
+                'capture',
+            ])
+
+            ->latest()
+
             ->get();
 
-        $result = $subPrograms->map(function (
-            $subProgram
-        ) use ($peserta) {
+        /*
+        |--------------------------------------------------------------------------
+        | FORMAT RESPONSE
+        |--------------------------------------------------------------------------
+        */
 
-            // total materi
-            $totalMateri =
-                $subProgram->materis->count();
+        $courses = $transactions
 
-            // materi selesai
-            $materiSelesai = $peserta
-                ->materis()
-                ->where(
-                    'sub_program_id',
-                    $subProgram->id
-                )
-                ->wherePivot(
-                    'status',
-                    'selesai'
-                )
-                ->count();
+            ->filter(fn ($trx) => $trx->subProgram)
 
-            // progress
-            $progress = $totalMateri > 0
-                ? round(
-                    ($materiSelesai / $totalMateri) * 100
-                  )
-                : 0;
+            ->map(function ($trx) {
 
-            return [
+                $subProgram =
+                    $trx->subProgram;
 
-                'id' => $subProgram->id,
+                $totalMateri =
+                    $subProgram->materis->count();
 
-                'title' => $subProgram->name,
+                return [
 
-                'slug' => $subProgram->slug,
+                    'transaction_id' =>
+                        $trx->id,
 
-                'description' =>
-                    $subProgram->description,
+                    'id' =>
+                        $subProgram->id,
 
-                'usia' => $subProgram->usia,
+                    'title' =>
+                        $subProgram->name,
 
-                'harga' => $subProgram->harga,
+                    'slug' =>
+                        $subProgram->slug,
 
-                'progress' => $progress,
+                    'description' =>
+                        $subProgram->description,
 
-                'total_materi' => $totalMateri,
+                    'usia' =>
+                        $subProgram->usia,
 
-                'materi_selesai' => $materiSelesai,
+                    'harga' =>
+                        $subProgram->harga,
 
-                'created_at' =>
-                    $subProgram->created_at,
-            ];
-        });
+                    'image_url' =>
+                        $subProgram->image_url,
 
-        return response()->json($result);
+                    'payment_type' =>
+                        $trx->payment_type,
+
+                    'transaction_status' =>
+                        $trx->transaction_status,
+
+                    'total_materi' =>
+                        $totalMateri,
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | SEMENTARA STATIC
+                    |--------------------------------------------------------------------------
+                    */
+
+                    'materi_selesai' => 0,
+
+                    'progress' => 0,
+
+                    'created_at' =>
+                        $trx->created_at,
+
+                ];
+
+            })
+
+            /*
+            |--------------------------------------------------------------------------
+            | HILANGKAN DUPLIKAT COURSE
+            |--------------------------------------------------------------------------
+            */
+
+            ->unique('id')
+
+            ->values();
+
+        return response()->json($courses);
     }
 }

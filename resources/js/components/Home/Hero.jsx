@@ -16,7 +16,7 @@ export default function Hero() {
 
   return (
 
-    <section className="mx-auto mt-8 flex max-w-6xl items-center justify-between rounded-xl bg-purple-100 px-10">
+    <section className="mx-auto mt-8 flex max-w-6xl items-center justify-between rounded-xl bg-gradient-to-r from-[#DFD0EB] via-[#E8D9F0] to-[#EDE0F5] px-10">
 
       {/* Text Content */}
       <div className="max-w-lg py-16">
