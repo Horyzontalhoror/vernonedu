@@ -6,10 +6,13 @@ use App\Filament\Resources\Pembayarans\Pages\CreatePembayaran;
 use App\Filament\Resources\Pembayarans\Pages\EditPembayaran;
 use App\Filament\Resources\Pembayarans\Pages\ListPembayarans;
 use App\Filament\Resources\Pembayarans\Pages\ViewPembayaran;
+
 use App\Filament\Resources\Pembayarans\Schemas\PembayaranForm;
 use App\Filament\Resources\Pembayarans\Schemas\PembayaranInfolist;
 use App\Filament\Resources\Pembayarans\Tables\PembayaransTable;
-use App\Models\Pembayaran;
+
+use App\Models\Transaction;
+
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -19,12 +22,19 @@ use UnitEnum;
 
 class PembayaranResource extends Resource
 {
-    protected static ?string $model = Pembayaran::class;
+    protected static ?string $model = Transaction::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCurrencyDollar;
-    protected static string |BackedEnum|null $activeNavigationIcon = Heroicon::OutlinedArrowDownRight;
-    protected static string | UnitEnum | null $navigationGroup = 'Operasional';
+    protected static string|BackedEnum|null $navigationIcon =
+        Heroicon::OutlinedCurrencyDollar;
+
+    protected static string|BackedEnum|null $activeNavigationIcon =
+        Heroicon::OutlinedArrowDownRight;
+
+    protected static string|UnitEnum|null $navigationGroup =
+        'Operasional';
+
     protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationLabel = 'Pembayaran';
     protected static ?string $pluralLabel = 'Pembayaran';
     protected static ?string $label = 'Pembayaran';
@@ -46,9 +56,7 @@ class PembayaranResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
@@ -65,5 +73,4 @@ class PembayaranResource extends Resource
     {
         return false;
     }
-
 }

@@ -4,61 +4,143 @@ namespace App\Filament\Resources\Pembayarans\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\TextColumn;
+
 use Filament\Tables\Table;
+
+use Filament\Tables\Columns\TextColumn;
 
 class PembayaransTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+
             ->columns([
-                TextColumn::make('peserta.nama')
+
+                /*
+                |--------------------------------------------------------------------------
+                | ORDER ID
+                |--------------------------------------------------------------------------
+                */
+
+                TextColumn::make('order_id')
+                    ->label('Order ID')
+                    ->searchable()
+                    ->copyable()
+                    ->sortable(),
+
+                /*
+                |--------------------------------------------------------------------------
+                | PESERTA
+                |--------------------------------------------------------------------------
+                */
+
+                TextColumn::make('user.nama')
                     ->label('Peserta')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
+
+                /*
+                |--------------------------------------------------------------------------
+                | SUB PROGRAM
+                |--------------------------------------------------------------------------
+                */
 
                 TextColumn::make('subProgram.name')
-                    ->label('Kelas'),
+                    ->label('Kelas')
+                    ->searchable()
+                    ->sortable(),
 
-                TextColumn::make('jumlah')
-                    ->money('IDR'),
+                /*
+                |--------------------------------------------------------------------------
+                | AMOUNT
+                |--------------------------------------------------------------------------
+                */
 
-                TextColumn::make('tanggal')
-                    ->date(),
+                TextColumn::make('amount')
+                    ->label('Nominal')
+                    ->money('IDR')
+                    ->sortable(),
 
-                TextColumn::make('metode')
-                    ->badge(),
+                /*
+                |--------------------------------------------------------------------------
+                | PAYMENT TYPE
+                |--------------------------------------------------------------------------
+                */
 
-                TextColumn::make('status')
+                TextColumn::make('payment_type')
+                    ->label('Metode')
                     ->badge()
-                    ->colors([
-                        'warning' => 'pending',
-                        'success' => 'lunas',
-                        'danger' => 'gagal',
-                    ]),
+                    ->placeholder('-'),
+
+                /*
+                |--------------------------------------------------------------------------
+                | TRANSACTION STATUS
+                |--------------------------------------------------------------------------
+                */
+
+                TextColumn::make('transaction_status')
+                    ->label('Status')
+                    ->badge()
+
+                    ->color(
+                        fn (string $state): string => match ($state) {
+
+                            'pending' => 'warning',
+
+                            'settlement' => 'success',
+                            'capture' => 'success',
+
+                            'deny' => 'danger',
+                            'cancel' => 'danger',
+
+                            'expire' => 'gray',
+
+                            default => 'gray',
+                        }
+                    ),
+
+                /*
+                |--------------------------------------------------------------------------
+                | CREATED AT
+                |--------------------------------------------------------------------------
+                */
 
                 TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Tanggal')
+                    ->dateTime('d M Y H:i')
+                    ->sortable(),
+
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(
+                        isToggledHiddenByDefault: true
+                    ),
+
             ])
+
             ->filters([
                 //
             ])
+
             ->recordActions([
+
                 ViewAction::make(),
-                EditAction::make(),
+
             ])
+
             ->toolbarActions([
+
                 BulkActionGroup::make([
+
                     DeleteBulkAction::make(),
+
                 ]),
-            ]);
+
+            ])
+
+            ->defaultSort('created_at', 'desc');
     }
 }

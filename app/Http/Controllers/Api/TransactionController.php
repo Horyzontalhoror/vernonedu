@@ -6,13 +6,11 @@ use Midtrans\Config;
 use Midtrans\Snap;
 use App\Models\SubProgram;
 use App\Models\Transaction;
-use App\Models\Pembayaran;
 use App\Models\Peserta;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 
 class TransactionController extends Controller
 {
@@ -86,8 +84,8 @@ class TransactionController extends Controller
 
         $serverKey = config('services.midtrans.server_key');
 
-        // ✅ validasi signature
-        $signatureKey = hash('sha512',
+        $signatureKey = hash(
+            'sha512',
             $request->order_id .
             $request->status_code .
             $request->gross_amount .
@@ -95,96 +93,79 @@ class TransactionController extends Controller
         );
 
         if ($signatureKey !== $request->signature_key) {
-            return response()->json(['message' => 'Invalid signature'], 403);
+
+            return response()->json([
+                'message' => 'Invalid signature'
+            ], 403);
+
         }
 
-        $transaction = Transaction::where('order_id', $request->order_id)->first();
+        $transaction = Transaction::where(
+            'order_id',
+            $request->order_id
+        )->first();
 
         if (!$transaction) {
-            return response()->json(['message' => 'Not found'], 404);
-        }
 
-        // 🔥 ANTI DOUBLE PROCESS
-        if ($transaction->transaction_status === 'success') {
-            return response()->json(['message' => 'Already processed']);
+            return response()->json([
+                'message' => 'Not found'
+            ], 404);
+
         }
 
         $status = $request->transaction_status;
 
-        // =============================
-        // 🔥 MAPPING STATUS
-        // =============================
-        if (in_array($status, ['capture', 'settlement'])) {
-            $transaction->transaction_status = 'success';
-            $pembayaranStatus = 'lunas';
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE TRANSACTION
+        |--------------------------------------------------------------------------
+        */
 
-            // ✅ MASUKKAN KE PESERTA
-            Peserta::updateOrCreate(
+        $transaction->update([
+
+            'transaction_status' => $status,
+
+            'payment_type' =>
+                $request->payment_type,
+
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | SUCCESS PAYMENT
+        |--------------------------------------------------------------------------
+        */
+
+        if (in_array($status, [
+            'capture',
+            'settlement'
+        ])) {
+
+            // peserta
+            $peserta = Peserta::firstOrCreate(
+
                 [
-                    'log_user_id' => $transaction->user_id, // 🔥 FIX
-                    'sub_program_id' => $transaction->sub_program_id,
+                    'log_user_id' =>
+                        $transaction->user_id,
                 ],
+
                 [
-                    'status' => 'aktif',
+                    'status' => 'active',
                 ]
+
             );
 
-        } elseif ($status == 'pending') {
-            $transaction->transaction_status = 'pending';
-            $pembayaranStatus = 'pending';
+            // enrollment
+            $peserta->subPrograms()
+                ->syncWithoutDetaching([
 
-        } else {
-            $transaction->transaction_status = 'failed';
-            $pembayaranStatus = 'gagal';
+                    $transaction->sub_program_id
+
+                ]);
         }
 
-        $transaction->payment_type = $request->payment_type;
-
-        // 🔥 OPTIONAL: simpan raw response (kalau ada kolomnya)
-        if (Schema::hasColumn('transactions', 'midtrans_response')) {
-            $transaction->midtrans_response = json_encode($request->all());
-        }
-
-        $transaction->save();
-
-        // =============================
-        // 🔥 SIMPAN KE PEMBAYARAN
-        // =============================
-        // 🔥 pastikan peserta sudah ada (dari step sebelumnya)
-        $peserta = Peserta::where('log_user_id', $transaction->user_id)
-            ->where('sub_program_id', $transaction->sub_program_id)
-            ->first();
-
-        // kalau belum ada (safety)
-        if (!$peserta) {
-            $peserta = Peserta::create([
-                'user_id' => $transaction->user_id,
-                'sub_program_id' => $transaction->sub_program_id,
-                'status' => 'aktif',
-            ]);
-        }
-
-        // 🔥 simpan pembayaran (pakai peserta_id)
-        Pembayaran::updateOrCreate(
-            [
-                'peserta_id' => $peserta->id,
-                'sub_program_id' => $transaction->sub_program_id,
-            ],
-            [
-                'jumlah' => $transaction->amount,
-                'status' => $pembayaranStatus,
-                'tanggal' => now(),
-                'metode' => $request->payment_type,
-            ]
-        );
-
-        // 🔥 kalau sukses → pastikan status peserta aktif
-        if ($pembayaranStatus === 'lunas') {
-            $peserta->update([
-                'status' => 'aktif'
-            ]);
-        }
-
-        return response()->json(['message' => 'OK']);
+        return response()->json([
+            'message' => 'OK'
+        ]);
     }
 }
