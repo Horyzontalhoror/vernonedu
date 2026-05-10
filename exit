@@ -1,0 +1,239 @@
+[1mdiff --git a/app/Filament/Resources/Pembayarans/Tables/PembayaransTable.php b/app/Filament/Resources/Pembayarans/Tables/PembayaransTable.php[m
+[1mindex 1687c04..0734cd4 100644[m
+[1m--- a/app/Filament/Resources/Pembayarans/Tables/PembayaransTable.php[m
+[1m+++ b/app/Filament/Resources/Pembayarans/Tables/PembayaransTable.php[m
+[36m@@ -4,8 +4,9 @@[m
+ [m
+ use Filament\Actions\BulkActionGroup;[m
+ use Filament\Actions\DeleteBulkAction;[m
+[32m+[m[32muse Filament\Actions\EditAction;[m
+ use Filament\Actions\ViewAction;[m
+[31m-[m
+[32m+[m[32muse Filament\Tables\Columns\SelectColumn;[m
+ use Filament\Tables\Table;[m
+ [m
+ use Filament\Tables\Columns\TextColumn;[m
+[36m@@ -69,9 +70,26 @@[m [mpublic static function configure(Table $table): Table[m
+                 |--------------------------------------------------------------------------[m
+                 */[m
+ [m
+[31m-                TextColumn::make('payment_type')[m
+[32m+[m[32m                SelectColumn::make('payment_type')[m
+[32m+[m
+                     ->label('Metode')[m
+[31m-                    ->badge()[m
+[32m+[m
+[32m+[m[32m                    ->options([[m
+[32m+[m
+[32m+[m[32m                        'bank_transfer' => 'Bank Transfer',[m
+[32m+[m
+[32m+[m[32m                        'gopay' => 'GoPay',[m
+[32m+[m
+[32m+[m[32m                        'qris' => 'QRIS',[m
+[32m+[m
+[32m+[m[32m                        'shopeepay' => 'ShopeePay',[m
+[32m+[m
+[32m+[m[32m                        'credit_card' => 'Credit Card',[m
+[32m+[m
+[32m+[m[32m                    ])[m
+[32m+[m
+[32m+[m[32m                    ->selectablePlaceholder(false)[m
+[32m+[m
+                     ->placeholder('-'),[m
+ [m
+                 /*[m
+[36m@@ -80,26 +98,27 @@[m [mpublic static function configure(Table $table): Table[m
+                 |--------------------------------------------------------------------------[m
+                 */[m
+ [m
+[31m-                TextColumn::make('transaction_status')[m
+[32m+[m[32m                SelectColumn::make('transaction_status')[m
+[32m+[m
+                     ->label('Status')[m
+[31m-                    ->badge()[m
+ [m
+[31m-                    ->color([m
+[31m-                        fn (string $state): string => match ($state) {[m
+[32m+[m[32m                    ->options([[m
+ [m
+[31m-                            'pending' => 'warning',[m
+[32m+[m[32m                        'pending' => 'Pending',[m
+ [m
+[31m-                            'settlement' => 'success',[m
+[31m-                            'capture' => 'success',[m
+[32m+[m[32m                        'settlement' => 'Settlement',[m
+ [m
+[31m-                            'deny' => 'danger',[m
+[31m-                            'cancel' => 'danger',[m
+[32m+[m[32m                        'capture' => 'Capture',[m
+ [m
+[31m-                            'expire' => 'gray',[m
+[32m+[m[32m                        'deny' => 'Denied',[m
+ [m
+[31m-                            default => 'gray',[m
+[31m-                        }[m
+[31m-                    ),[m
+[32m+[m[32m                        'cancel' => 'Cancelled',[m
+[32m+[m
+[32m+[m[32m                        'expire' => 'Expired',[m
+[32m+[m
+[32m+[m[32m                    ])[m
+[32m+[m
+[32m+[m[32m                    ->selectablePlaceholder(false),[m
+ [m
+                 /*[m
+                 |--------------------------------------------------------------------------[m
+[36m@@ -128,6 +147,7 @@[m [mpublic static function configure(Table $table): Table[m
+             ->recordActions([[m
+ [m
+                 ViewAction::make(),[m
+[32m+[m[32m                EditAction::make(),[m
+ [m
+             ])[m
+ [m
+[1mdiff --git a/resources/js/components/dashboard/Announcement/AnnouncementCard.jsx b/resources/js/components/dashboard/Announcement/AnnouncementCard.jsx[m
+[1mindex ecca78c..93e3941 100644[m
+[1m--- a/resources/js/components/dashboard/Announcement/AnnouncementCard.jsx[m
+[1m+++ b/resources/js/components/dashboard/Announcement/AnnouncementCard.jsx[m
+[36m@@ -1,36 +1,126 @@[m
+[31m-export default function AnnouncementCard({data}){[m
+[32m+[m[32mimport { useState } from "react";[m
+ [m
+[31m-  return([m
+[32m+[m[32mimport {[m
+[32m+[m[32m  ChevronDown,[m
+[32m+[m[32m  ChevronUp,[m
+[32m+[m[32m  Megaphone,[m
+[32m+[m[32m} from "lucide-react";[m
+[32m+[m
+[32m+[m[32mexport default function AnnouncementCard({ data }) {[m
+[32m+[m
+[32m+[m[32m  const [open, setOpen] = useState(false);[m
+[32m+[m
+[32m+[m[32m  return ([m
+ [m
+     <div[m
+[31m-      className={`border rounded-lg p-6 flex justify-between items-start[m
+[31m-      ${data.highlight ? "bg-purple-100 border-purple-300" : "bg-white"}`}[m
+[32m+[m[32m      className={`overflow-hidden rounded-3xl border p-6 shadow-sm transition duration-300 ${[m
+[32m+[m[32m        data.highlight[m
+[32m+[m[32m          ? "border-[#D8BEE8] bg-gradient-to-r from-[#DFD0EB] via-[#E8D9F0] to-[#EDE0F5]"[m
+[32m+[m[32m          : "border-[#E8D9F0] bg-white hover:shadow-md"[m
+[32m+[m[32m      }`}[m
+     >[m
+ [m
+[31m-      <div>[m
+[32m+[m[32m      {/* TOP */}[m
+[32m+[m[32m      <div className="flex items-start justify-between gap-4">[m
+[32m+[m
+[32m+[m[32m        <div className="flex gap-4">[m
+[32m+[m
+[32m+[m[32m          {/* ICON */}[m
+[32m+[m[32m          <div[m
+[32m+[m[32m            className={`flex h-12 w-12 items-center justify-center rounded-2xl ${[m
+[32m+[m[32m              data.highlight[m
+[32m+[m[32m                ? "bg-white/70"[m
+[32m+[m[32m                : "bg-[#F4ECF9]"[m
+[32m+[m[32m            }`}[m
+[32m+[m[32m          >[m
+[32m+[m
+[32m+[m[32m            <Megaphone className="h-6 w-6 text-[#7A5C92]" />[m
+[32m+[m
+[32m+[m[32m          </div>[m
+[32m+[m
+[32m+[m[32m          {/* CONTENT */}[m
+[32m+[m[32m          <div>[m
+[32m+[m
+[32m+[m[32m            <h3 className="text-lg font-bold text-gray-800">[m
+[32m+[m
+[32m+[m[32m              {data.title}[m
+[32m+[m
+[32m+[m[32m            </h3>[m
+[32m+[m
+[32m+[m[32m            {/* SHORT MESSAGE */}[m
+[32m+[m[32m            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-600">[m
+[32m+[m
+[32m+[m[32m              {data.message}[m
+[32m+[m
+[32m+[m[32m            </p>[m
+[32m+[m
+[32m+[m[32m            {/* TIME */}[m
+[32m+[m[32m            <p className="mt-3 text-xs text-gray-400">[m
+[32m+[m
+[32m+[m[32m              {data.time}[m
+ [m
+[31m-        <h3 className="font-semibold">[m
+[32m+[m[32m            </p>[m
+ [m
+[31m-          {data.title}[m
+[32m+[m[32m          </div>[m
+ [m
+[31m-        </h3>[m
+[32m+[m[32m        </div>[m
+ [m
+[31m-        <p className="text-gray-600 mt-2 text-sm">[m
+[32m+[m[32m        {/* BUTTON DETAIL */}[m
+[32m+[m[32m        <button[m
+[32m+[m[32m          onClick={() => setOpen(!open)}[m
+[32m+[m[32m          className="flex items-center gap-1 rounded-xl bg-white/70 px-4 py-2 text-sm font-medium text-[#7A5C92] transition hover:bg-white"[m
+[32m+[m[32m        >[m
+ [m
+[31m-          {data.message}[m
+[32m+[m[32m          {open ? "Tutup" : "Detail"}[m
+ [m
+[31m-        </p>[m
+[32m+[m[32m          {open ? ([m
+[32m+[m[32m            <ChevronUp className="h-4 w-4" />[m
+[32m+[m[32m          ) : ([m
+[32m+[m[32m            <ChevronDown className="h-4 w-4" />[m
+[32m+[m[32m          )}[m
+[32m+[m
+[32m+[m[32m        </button>[m
+ [m
+       </div>[m
+ [m
+[31m-      <span className="text-gray-400 text-sm">[m
+[32m+[m[32m      {/* DETAIL */}[m
+[32m+[m[32m      {open && ([m
+[32m+[m
+[32m+[m[32m        <div className="mt-6 rounded-2xl border border-white/50 bg-white/60 p-5 backdrop-blur">[m
+[32m+[m
+[32m+[m[32m          <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#7A5C92]">[m
+[32m+[m
+[32m+[m[32m            Detail Pengumuman[m
+[32m+[m
+[32m+[m[32m          </h4>[m
+[32m+[m
+[32m+[m[32m          <div className="space-y-3 text-sm leading-relaxed text-gray-700">[m
+[32m+[m
+[32m+[m[32m            <p>[m
+[32m+[m
+[32m+[m[32m              {data.message}[m
+[32m+[m
+[32m+[m[32m            </p>[m
+[32m+[m
+[32m+[m[32m            {/* OPTIONAL EXTRA CONTENT */}[m
+[32m+[m[32m            {data.detail && ([m
+[32m+[m
+[32m+[m[32m              <p>[m
+[32m+[m
+[32m+[m[32m                {data.detail}[m
+[32m+[m
+[32m+[m[32m              </p>[m
+[32m+[m
+[32m+[m[32m            )}[m
+[32m+[m
+[32m+[m[32m          </div>[m
+ [m
+[31m-        {data.time}[m
+[32m+[m[32m        </div>[m
+ [m
+[31m-      </span>[m
+[32m+[m[32m      )}[m
+ [m
+     </div>[m
+ [m
+[31m-  )[m
+[32m+[m[32m  );[m
+ [m
+ }[m

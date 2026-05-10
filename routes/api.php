@@ -7,8 +7,9 @@ use App\Http\Controllers\Api\ProgramController;
 use App\Http\Controllers\Api\JadwalController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\AnnouncementController;
-use App\Http\Controllers\Api\User\CertificateController;
 
+use App\Http\Controllers\Api\User\CertificateController;
+use App\Http\Controllers\Api\User\ProfileController;
 use App\Http\Controllers\Api\User\CourseController;
 use App\Http\Controllers\Api\User\ScheduleController;
 
@@ -164,6 +165,11 @@ Route::middleware('auth:sanctum')->group(function () {
         [CourseController::class, 'myCourses']
     );
 
+    Route::get(
+        '/my-courses/{slug}',
+        [CourseController::class, 'showMyCourse']
+    );
+
     /*
     |--------------------------------------------------------------------------
     | MY SCHEDULE
@@ -191,4 +197,19 @@ Route::middleware('auth:sanctum')->group(function () {
         [CertificateController::class, 'show']
     );
 
+    /*
+    |--------------------------------------------------------------------------
+    | MY profile
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/profile',
+        [ProfileController::class, 'me']
+    );
+
+    Route::put(
+        '/profile',
+        [ProfileController::class, 'update']
+    );
 });

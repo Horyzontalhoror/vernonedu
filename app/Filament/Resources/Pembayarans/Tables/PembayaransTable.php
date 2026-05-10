@@ -4,8 +4,9 @@ namespace App\Filament\Resources\Pembayarans\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-
+use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Table;
 
 use Filament\Tables\Columns\TextColumn;
@@ -69,9 +70,26 @@ class PembayaransTable
                 |--------------------------------------------------------------------------
                 */
 
-                TextColumn::make('payment_type')
+                SelectColumn::make('payment_type')
+
                     ->label('Metode')
-                    ->badge()
+
+                    ->options([
+
+                        'bank_transfer' => 'Bank Transfer',
+
+                        'gopay' => 'GoPay',
+
+                        'qris' => 'QRIS',
+
+                        'shopeepay' => 'ShopeePay',
+
+                        'credit_card' => 'Credit Card',
+
+                    ])
+
+                    ->selectablePlaceholder(false)
+
                     ->placeholder('-'),
 
                 /*
@@ -80,26 +98,27 @@ class PembayaransTable
                 |--------------------------------------------------------------------------
                 */
 
-                TextColumn::make('transaction_status')
+                SelectColumn::make('transaction_status')
+
                     ->label('Status')
-                    ->badge()
 
-                    ->color(
-                        fn (string $state): string => match ($state) {
+                    ->options([
 
-                            'pending' => 'warning',
+                        'pending' => 'Pending',
 
-                            'settlement' => 'success',
-                            'capture' => 'success',
+                        'settlement' => 'Settlement',
 
-                            'deny' => 'danger',
-                            'cancel' => 'danger',
+                        'capture' => 'Capture',
 
-                            'expire' => 'gray',
+                        'deny' => 'Denied',
 
-                            default => 'gray',
-                        }
-                    ),
+                        'cancel' => 'Cancelled',
+
+                        'expire' => 'Expired',
+
+                    ])
+
+                    ->selectablePlaceholder(false),
 
                 /*
                 |--------------------------------------------------------------------------
@@ -128,6 +147,7 @@ class PembayaransTable
             ->recordActions([
 
                 ViewAction::make(),
+                EditAction::make(),
 
             ])
 
