@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ProgramController;
 use App\Http\Controllers\Api\JadwalController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\AnnouncementController;
+use App\Http\Controllers\Api\User\CertificateController;
 
 use App\Http\Controllers\Api\User\CourseController;
 use App\Http\Controllers\Api\User\ScheduleController;
@@ -172,6 +173,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get(
         '/my-schedule',
         [ScheduleController::class, 'mySchedule']
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | MY certificates
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/my-certificates',
+        [CertificateController::class, 'myCertificates']
+    );
+
+    Route::get(
+        '/my-certificates/{slug}',
+        [CertificateController::class, 'show']
     );
 
 });

@@ -3,11 +3,15 @@
 namespace App\Filament\Resources\Pesertas\RelationManagers;
 
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+
 use Filament\Tables\Table;
+
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+
 use Filament\Actions\AttachAction;
 use Filament\Actions\DetachAction;
+
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DetachBulkAction;
 
@@ -15,65 +19,265 @@ class SubProgramsRelationManager extends RelationManager
 {
     protected static string $relationship = 'subPrograms';
 
-    protected static ?string $title = 'Kelas yang Diikuti';
+    protected static ?string $title =
+        'Kelas yang Diikuti';
 
     public function table(Table $table): Table
     {
         return $table
+
             ->recordTitleAttribute('name')
+
             ->columns([
+
+                /*
+                |--------------------------------------------------------------------------
+                | IMAGE
+                |--------------------------------------------------------------------------
+                */
+
+                ImageColumn::make('image_url')
+
+                    ->label('Gambar')
+
+                    ->square()
+
+                    ->size(60)
+
+                    ->defaultImageUrl(
+                        'https://placehold.co/100x100'
+                    ),
+
+                /*
+                |--------------------------------------------------------------------------
+                | NAMA KELAS
+                |--------------------------------------------------------------------------
+                */
+
                 TextColumn::make('name')
+
                     ->label('Nama Kelas')
-                    ->searchable(),
+
+                    ->searchable()
+
+                    ->sortable()
+
+                    ->weight('bold'),
+
+                /*
+                |--------------------------------------------------------------------------
+                | USIA
+                |--------------------------------------------------------------------------
+                */
+
+                TextColumn::make('usia')
+
+                    ->label('Usia')
+
+                    ->badge()
+
+                    ->color('info'),
+
+                /*
+                |--------------------------------------------------------------------------
+                | HARGA
+                |--------------------------------------------------------------------------
+                */
+
+                TextColumn::make('harga')
+
+                    ->label('Harga')
+
+                    ->money('IDR'),
+
+                /*
+                |--------------------------------------------------------------------------
+                | DESKRIPSI
+                |--------------------------------------------------------------------------
+                */
 
                 TextColumn::make('description')
+
                     ->label('Deskripsi')
-                    ->limit(40),
+
+                    ->limit(40)
+
+                    ->wrap(),
+
+                /*
+                |--------------------------------------------------------------------------
+                | TANGGAL DAFTAR
+                |--------------------------------------------------------------------------
+                */
 
                 TextColumn::make('pivot.created_at')
+
                     ->label('Tanggal Daftar')
+
                     ->dateTime(),
+
+                /*
+                |--------------------------------------------------------------------------
+                | PROGRESS
+                |--------------------------------------------------------------------------
+                */
+
                 TextColumn::make('progress')
+
                     ->label('Progress')
-                    ->getStateUsing(fn ($record, $livewire) =>
-                        $livewire->ownerRecord->getProgressBySubProgram($record->id) . '%'
+
+                    ->badge()
+
+                    ->color(fn ($state) => match (true) {
+
+                        $state >= 100 => 'success',
+
+                        $state >= 50 => 'warning',
+
+                        default => 'gray',
+
+                    })
+
+                    ->getStateUsing(
+                        fn ($record, $livewire) =>
+
+                            $livewire
+                                ->ownerRecord
+                                ->getProgressBySubProgram(
+                                    $record->id
+                                ) . '%'
                     ),
+
+                /*
+                |--------------------------------------------------------------------------
+                | STATUS
+                |--------------------------------------------------------------------------
+                */
+
                 TextColumn::make('status')
+
                     ->label('Status')
-                    ->getStateUsing(fn ($record, $livewire) =>
-                        $livewire->ownerRecord->isSubProgramCompleted($record->id)
-                            ? 'Selesai'
-                            : 'Proses'
+
+                    ->badge()
+
+                    ->color(fn ($state) =>
+
+                        $state === 'Selesai'
+                            ? 'success'
+                            : 'warning'
+                    )
+
+                    ->getStateUsing(
+                        fn ($record, $livewire) =>
+
+                            $livewire
+                                ->ownerRecord
+                                ->isSubProgramCompleted(
+                                    $record->id
+                                )
+
+                                ? 'Selesai'
+
+                                : 'Proses'
                     ),
+
             ])
+
             ->recordActions([
+
+                /*
+                |--------------------------------------------------------------------------
+                | DETACH
+                |--------------------------------------------------------------------------
+                */
+
                 DetachAction::make()
-                    ->label('Keluar dari Kelas'),
+
+                    ->label('Keluar Kelas'),
+
             ])
+
             ->toolbarActions([
+
                 BulkActionGroup::make([
+
                     DetachBulkAction::make(),
+
                 ]),
+
             ])
+
             ->headerActions([
+
+                /*
+                |--------------------------------------------------------------------------
+                | ATTACH
+                |--------------------------------------------------------------------------
+                */
+
                 AttachAction::make()
+
                     ->label('Tambah Kelas')
+
                     ->preloadRecordSelect()
-                    ->after(function ($record, $livewire) {
-                        $peserta = $livewire->ownerRecord;
 
-                        // ambil semua materi dari subprogram
-                        $materis = $record->materis;
+                    ->after(function (
+                        $record,
+                        $livewire
+                    ) {
 
-                        foreach ($materis as $materi) {
-                            if (! $peserta->materis->contains($materi->id)) {
-                                $peserta->materis()->attach($materi->id, [
-                                    'status' => 'proses',
-                                    'tanggal' => now(),
-                                ]);
+                        $peserta =
+                            $livewire->ownerRecord;
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | AMBIL MATERI
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $materis =
+                            $record->materis;
+
+                        foreach (
+                            $materis as $materi
+                        ) {
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | CEK DUPLIKAT
+                            |--------------------------------------------------------------------------
+                            */
+
+                            if (
+                                ! $peserta
+                                    ->materis()
+                                    ->where(
+                                        'materi_id',
+                                        $materi->id
+                                    )
+                                    ->exists()
+                            ) {
+
+                                $peserta
+                                    ->materis()
+                                    ->attach(
+
+                                        $materi->id,
+
+                                        [
+
+                                            'status' =>
+                                                'proses',
+
+                                            'tanggal' =>
+                                                now(),
+
+                                        ]
+                                    );
                             }
                         }
                     }),
+
             ]);
     }
 }
