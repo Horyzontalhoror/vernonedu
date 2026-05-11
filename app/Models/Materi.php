@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\SubProgram;
 
 class Materi extends Model
 {
@@ -11,17 +10,27 @@ class Materi extends Model
         'sub_program_id',
         'judul',
         'deskripsi',
-        'urutan'
+        'urutan',
     ];
-    public function pesertas()
-    {
-        return $this->belongsToMany(Peserta::class, 'progresses')
-            ->withPivot('status', 'tanggal')
-            ->withTimestamps();
-    }
+
     public function subProgram()
     {
         return $this->belongsTo(SubProgram::class);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | PROGRESS PESERTA
+    |--------------------------------------------------------------------------
+    */
+
+    public function pesertas()
+    {
+        return $this->belongsToMany( Peserta::class, 'progresses', 'materi_id', 'peserta_id' )
+        ->withPivot([
+            'status',
+            'tanggal',
+        ])
+        ->withTimestamps();
+    }
 }

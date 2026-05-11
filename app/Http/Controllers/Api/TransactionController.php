@@ -138,10 +138,15 @@ class TransactionController extends Controller
 
         if (in_array($status, [
             'capture',
-            'settlement'
+            'settlement',
         ])) {
 
-            // peserta
+            /*
+            |--------------------------------------------------------------------------
+            | PESERTA
+            |--------------------------------------------------------------------------
+            */
+
             $peserta = Peserta::firstOrCreate(
 
                 [
@@ -152,20 +157,81 @@ class TransactionController extends Controller
                 [
                     'status' => 'active',
                 ]
-
             );
 
-            // enrollment
-            $peserta->subPrograms()
+            /*
+            |--------------------------------------------------------------------------
+            | ENROLL COURSE
+            |--------------------------------------------------------------------------
+            */
+
+            $peserta
+                ->subPrograms()
                 ->syncWithoutDetaching([
 
                     $transaction->sub_program_id
 
                 ]);
-        }
 
-        return response()->json([
-            'message' => 'OK'
-        ]);
+            /*
+            |--------------------------------------------------------------------------
+            | AMBIL SUB PROGRAM
+            |--------------------------------------------------------------------------
+            */
+
+            $subProgram = SubProgram::with([
+                'materis'
+            ])->find(
+                $transaction->sub_program_id
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | AUTO CREATE PROGRESS
+            |--------------------------------------------------------------------------
+            */
+
+            if ($subProgram) {
+
+                foreach (
+                    $subProgram->materis as $materi
+                ) {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | CEK DUPLIKAT
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        ! $peserta
+                            ->materis()
+                            ->where(
+                                'materi_id',
+                                $materi->id
+                            )
+                            ->exists()
+                    ) {
+
+                        $peserta
+                            ->materis()
+                            ->attach(
+
+                                $materi->id,
+
+                                [
+
+                                    'status' =>
+                                        'proses',
+
+                                    'tanggal' =>
+                                        now(),
+
+                                ]
+                            );
+                    }
+                }
+            }
+        }
     }
 }

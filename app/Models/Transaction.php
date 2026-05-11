@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\LogUser;
 use App\Models\SubProgram;
+use App\Models\Peserta;
 
 class Transaction extends Model
 {
@@ -34,5 +35,61 @@ class Transaction extends Model
     public function getNamaAttribute()
     {
         return $this->user?->nama ?? '-';
+    }
+
+    protected static function booted()
+    {
+        static::updated(function ($transaction) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | STATUS BERHASIL
+            |--------------------------------------------------------------------------
+            */
+
+            if ( $transaction->wasChanged( 'transaction_status' ) && in_array( $transaction->transaction_status, [ 'settlement', 'capture', ] )
+
+            ) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | PESERTA
+                |--------------------------------------------------------------------------
+                */
+
+                $peserta = Peserta::firstOrCreate( [ 'log_user_id' => $transaction->user_id, ], [ 'status' => 'active', ] );
+
+                /*
+                |--------------------------------------------------------------------------
+                | ENROLL COURSE
+                |--------------------------------------------------------------------------
+                */
+
+                $peserta ->subPrograms() ->syncWithoutDetaching([ $transaction->sub_program_id ]);
+
+                /*
+                |--------------------------------------------------------------------------
+                | SUB PROGRAM
+                |--------------------------------------------------------------------------
+                */
+
+                $subProgram = SubProgram::with([ 'materis' ])->find( $transaction->sub_program_id ); if (! $subProgram) { return; }
+
+                /*
+                |--------------------------------------------------------------------------
+                | AUTO CREATE PROGRESS
+                |--------------------------------------------------------------------------
+                */
+
+                foreach ( $subProgram->materis as $materi ) {
+
+                    if ( ! $peserta ->materis() ->where( 'materi_id', $materi->id ) ->exists() )
+                        {
+
+                        $peserta ->materis() ->attach( $materi->id, [ 'status' => 'proses', 'tanggal' => now(), ] );
+                    }
+                }
+            }
+        });
     }
 }

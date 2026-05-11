@@ -10,9 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Peserta extends Model
 {
-    // =========================
-    // FIELD
-    // =========================
+    /*
+    |--------------------------------------------------------------------------
+    | FIELD
+    |--------------------------------------------------------------------------
+    */
+
     protected $fillable = [
         'log_user_id',
         'status',
@@ -25,24 +28,39 @@ class Peserta extends Model
         'tanggal_lahir' => 'date',
     ];
 
-    // auto eager load
-    protected $with = ['logUser'];
+    /*
+    |--------------------------------------------------------------------------
+    | AUTO LOAD
+    |--------------------------------------------------------------------------
+    */
 
-    // accessor otomatis
+    protected $with = [
+        'logUser',
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACCESSOR APPEND
+    |--------------------------------------------------------------------------
+    */
+
     protected $appends = [
         'nama',
         'email',
         'no_telepon',
     ];
 
-    // =========================
-    // GUARD
-    // =========================
+    /*
+    |--------------------------------------------------------------------------
+    | GUARD
+    |--------------------------------------------------------------------------
+    */
+
     protected static function booted()
     {
         static::creating(function ($model) {
 
-            if (!$model->log_user_id) {
+            if (! $model->log_user_id) {
 
                 throw new \Exception(
                     'Peserta harus punya log_user_id'
@@ -52,9 +70,11 @@ class Peserta extends Model
         });
     }
 
-    // =========================
-    // RELASI
-    // =========================
+    /*
+    |--------------------------------------------------------------------------
+    | RELATION : USER
+    |--------------------------------------------------------------------------
+    */
 
     public function logUser(): BelongsTo
     {
@@ -66,7 +86,7 @@ class Peserta extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | MANY TO MANY COURSE
+    | RELATION : COURSE
     |--------------------------------------------------------------------------
     */
 
@@ -80,7 +100,7 @@ class Peserta extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | PROGRESS MATERI
+    | RELATION : PROGRESS MATERI
     |--------------------------------------------------------------------------
     */
 
@@ -88,20 +108,35 @@ class Peserta extends Model
     {
         return $this->belongsToMany(
             Materi::class,
-            'progresses'
+            'progresses',
+            'peserta_id',
+            'materi_id'
         )
-        ->withPivot('status', 'tanggal')
+        ->withPivot([
+            'status',
+            'tanggal',
+        ])
         ->withTimestamps();
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | RELATION : CERTIFICATE
+    |--------------------------------------------------------------------------
+    */
+
     public function certificates(): HasMany
     {
-        return $this->hasMany(Certificate::class);
+        return $this->hasMany(
+            Certificate::class
+        );
     }
 
-    // =========================
-    // ACCESSOR
-    // =========================
+    /*
+    |--------------------------------------------------------------------------
+    | ACCESSOR
+    |--------------------------------------------------------------------------
+    */
 
     public function getNamaAttribute(): ?string
     {
@@ -118,52 +153,62 @@ class Peserta extends Model
         return $this->logUser?->no_telepon;
     }
 
-    // =========================
-    // PROGRESS
-    // =========================
+    /*
+    |--------------------------------------------------------------------------
+    | HITUNG PROGRESS COURSE
+    |--------------------------------------------------------------------------
+    */
 
-    public function getProgressBySubProgram($subProgramId)
-    {
-        $total = Materi::where(
+    public function getProgressBySubProgram(
+        $subProgramId
+    ) {
+
+        $totalMateri = Materi::where(
             'sub_program_id',
             $subProgramId
         )->count();
 
-        $selesai = $this->materis()
-            ->where(
-                'sub_program_id',
-                $subProgramId
+        if ($totalMateri === 0) {
+
+            return 0;
+
+        }
+
+        $materiSelesai = $this->materis()
+
+            ->whereHas(
+                'subProgram',
+                fn ($q) =>
+                    $q->where(
+                        'id',
+                        $subProgramId
+                    )
             )
+
             ->wherePivot(
                 'status',
                 'selesai'
             )
+
             ->count();
 
-        return $total > 0
-            ? round(($selesai / $total) * 100)
-            : 0;
+        return round(
+            ($materiSelesai / $totalMateri) * 100
+        );
     }
 
-    public function isSubProgramCompleted($subProgramId)
-    {
-        $total = Materi::where(
-            'sub_program_id',
+    /*
+    |--------------------------------------------------------------------------
+    | COURSE COMPLETED
+    |--------------------------------------------------------------------------
+    */
+
+    public function isSubProgramCompleted(
+        $subProgramId
+    ) {
+
+        return $this->getProgressBySubProgram(
             $subProgramId
-        )->count();
-
-        $selesai = $this->materis()
-            ->where(
-                'sub_program_id',
-                $subProgramId
-            )
-            ->wherePivot(
-                'status',
-                'selesai'
-            )
-            ->count();
-
-        return $total > 0 &&
-               $total === $selesai;
+        ) >= 100;
     }
 }

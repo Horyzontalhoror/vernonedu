@@ -23,7 +23,24 @@ class CourseController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | AMBIL TRANSAKSI SUKSES
+        | PESERTA
+        |--------------------------------------------------------------------------
+        */
+
+        $peserta = Peserta::where(
+            'log_user_id',
+            $user->id
+        )->first();
+
+        if (! $peserta) {
+
+            return response()->json([]);
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | TRANSACTION SUCCESS
         |--------------------------------------------------------------------------
         */
 
@@ -44,21 +61,67 @@ class CourseController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | FORMAT RESPONSE
+        | FORMAT
         |--------------------------------------------------------------------------
         */
 
         $courses = $transactions
 
-            ->filter(fn ($trx) => $trx->subProgram)
+            ->filter(fn ($trx) =>
+                $trx->subProgram
+            )
 
-            ->map(function ($trx) {
+            ->map(function ($trx) use ($peserta) {
 
                 $subProgram =
                     $trx->subProgram;
 
+                /*
+                |--------------------------------------------------------------------------
+                | TOTAL MATERI
+                |--------------------------------------------------------------------------
+                */
+
                 $totalMateri =
-                    $subProgram->materis->count();
+                    $subProgram
+                        ->materis
+                        ->count();
+
+                /*
+                |--------------------------------------------------------------------------
+                | PROGRESS
+                |--------------------------------------------------------------------------
+                */
+
+                $progress = $peserta
+                    ->getProgressBySubProgram(
+                        $subProgram->id
+                    );
+
+                /*
+                |--------------------------------------------------------------------------
+                | MATERI SELESAI
+                |--------------------------------------------------------------------------
+                */
+
+                $materiSelesai = $peserta
+                    ->materis()
+
+                    ->whereHas(
+                        'subProgram',
+                        fn ($q) =>
+                            $q->where(
+                                'id',
+                                $subProgram->id
+                            )
+                    )
+
+                    ->wherePivot(
+                        'status',
+                        'selesai'
+                    )
+
+                    ->count();
 
                 return [
 
@@ -95,15 +158,11 @@ class CourseController extends Controller
                     'total_materi' =>
                         $totalMateri,
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | STATIC SEMENTARA
-                    |--------------------------------------------------------------------------
-                    */
+                    'materi_selesai' =>
+                        $materiSelesai,
 
-                    'materi_selesai' => 0,
-
-                    'progress' => 0,
+                    'progress' =>
+                        $progress,
 
                     'created_at' =>
                         $trx->created_at,
@@ -114,7 +173,7 @@ class CourseController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | HILANGKAN DUPLIKAT
+            | UNIQUE COURSE
             |--------------------------------------------------------------------------
             */
 
@@ -122,7 +181,9 @@ class CourseController extends Controller
 
             ->values();
 
-        return response()->json($courses);
+        return response()->json(
+            $courses
+        );
     }
 
     /*
@@ -138,6 +199,12 @@ class CourseController extends Controller
 
         $user = $request->user();
 
+        /*
+        |--------------------------------------------------------------------------
+        | PESERTA
+        |--------------------------------------------------------------------------
+        */
+
         $peserta = Peserta::where(
             'log_user_id',
             $user->id
@@ -146,75 +213,130 @@ class CourseController extends Controller
         if (! $peserta) {
 
             return response()->json([
-                'message' => 'Peserta tidak ditemukan'
+                'message' =>
+                    'Peserta tidak ditemukan'
             ], 404);
+
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | COURSE
+        |--------------------------------------------------------------------------
+        */
+
         $subProgram = $peserta
+
             ->subPrograms()
-            ->where('slug', $slug)
-            ->with('materis')
+
+            ->where(
+                'slug',
+                $slug
+            )
+
+            ->with([
+                'materis'
+            ])
+
             ->first();
 
         if (! $subProgram) {
 
             return response()->json([
-                'message' => 'Course tidak ditemukan'
+                'message' =>
+                    'Course tidak ditemukan'
             ], 404);
+
         }
 
         /*
         |--------------------------------------------------------------------------
-        | MATERI + PROGRESS
+        | MATERI + STATUS
         |--------------------------------------------------------------------------
         */
 
-        $materis = $subProgram->materis->map(function (
-            $materi
-        ) use ($peserta) {
+        $materis = $subProgram
+            ->materis
 
-            $progress = $peserta
-                ->materis()
-                ->where('materi_id', $materi->id)
-                ->first();
+            ->sortBy('urutan')
 
-            return [
+            ->values()
 
-                'id' => $materi->id,
+            ->map(function (
+                $materi
+            ) use ($peserta) {
 
-                'judul' => $materi->judul,
+                $progress = $peserta
 
-                'deskripsi' => $materi->deskripsi,
+                    ->materis()
 
-                'status' =>
-                    $progress?->pivot?->status
-                    ?? 'proses',
+                    ->where(
+                        'materi_id',
+                        $materi->id
+                    )
 
-                'tanggal' =>
-                    $progress?->pivot?->tanggal,
+                    ->first();
 
-            ];
-        });
+                return [
+
+                    'id' =>
+                        $materi->id,
+
+                    'judul' =>
+                        $materi->judul,
+
+                    'deskripsi' =>
+                        $materi->deskripsi,
+
+                    'urutan' =>
+                        $materi->urutan,
+
+                    'status' =>
+                        $progress?->pivot?->status
+                        ?? 'proses',
+
+                    'tanggal' =>
+                        $progress?->pivot?->tanggal,
+
+                ];
+
+            });
 
         /*
         |--------------------------------------------------------------------------
-        | HITUNG PROGRESS
+        | TOTAL
         |--------------------------------------------------------------------------
         */
 
         $totalMateri =
-            $subProgram->materis->count();
+            $subProgram
+                ->materis
+                ->count();
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROGRESS
+        |--------------------------------------------------------------------------
+        */
+
+        $progress = $peserta
+            ->getProgressBySubProgram(
+                $subProgram->id
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | MATERI SELESAI
+        |--------------------------------------------------------------------------
+        */
 
         $materiSelesai =
             $materis
-                ->where('status', 'selesai')
+                ->where(
+                    'status',
+                    'selesai'
+                )
                 ->count();
-
-        $progress = $totalMateri > 0
-            ? round(
-                ($materiSelesai / $totalMateri) * 100
-              )
-            : 0;
 
         /*
         |--------------------------------------------------------------------------
@@ -224,27 +346,38 @@ class CourseController extends Controller
 
         return response()->json([
 
-            'id' => $subProgram->id,
+            'id' =>
+                $subProgram->id,
 
-            'title' => $subProgram->name,
+            'title' =>
+                $subProgram->name,
 
-            'slug' => $subProgram->slug,
+            'slug' =>
+                $subProgram->slug,
 
-            'description' => $subProgram->description,
+            'description' =>
+                $subProgram->description,
 
-            'usia' => $subProgram->usia,
+            'usia' =>
+                $subProgram->usia,
 
-            'harga' => $subProgram->harga,
+            'harga' =>
+                $subProgram->harga,
 
-            'image_url' => $subProgram->image_url,
+            'image_url' =>
+                $subProgram->image_url,
 
-            'progress' => $progress,
+            'progress' =>
+                $progress,
 
-            'total_materi' => $totalMateri,
+            'total_materi' =>
+                $totalMateri,
 
-            'materi_selesai' => $materiSelesai,
+            'materi_selesai' =>
+                $materiSelesai,
 
-            'materis' => $materis,
+            'materis' =>
+                $materis,
 
         ]);
     }

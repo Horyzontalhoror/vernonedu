@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Database\Seeders\AdminSeeder;
+use Database\Seeders\MateriSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,6 +14,7 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             ProgramSeeder::class,
             InstrukturSeeder::class,
+            MateriSeeder::class,
         ]);
     }
 }
