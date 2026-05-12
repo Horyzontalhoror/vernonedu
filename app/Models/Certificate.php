@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Notifications\CertificateNotification;
 
 class Certificate extends Model
 {
@@ -94,4 +95,57 @@ class Certificate extends Model
                 ? asset('storage/' . $this->file_path)
                 : null);
     }
+
+    protected static function booted()
+    {
+        static::updated(function ($certificate) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | PUBLISHED
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+
+                $certificate->wasChanged(
+                    'status'
+                )
+
+                &&
+
+                $certificate->status ===
+                    'published'
+
+            ) {
+
+                $user = $certificate
+
+                    ->peserta
+
+                    ?->logUser;
+
+                if (! $user) {
+
+                    return;
+
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | SEND NOTIFICATION
+                |--------------------------------------------------------------------------
+                */
+
+                $user->notify(
+
+                    new CertificateNotification(
+                        $certificate
+                    )
+
+                );
+            }
+        });
+    }
+
 }

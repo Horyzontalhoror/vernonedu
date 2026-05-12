@@ -13,6 +13,7 @@ import MyCertificate from "./pages/Dashboard/Certificate/MyCertificate";
 import CertificateDetail from "./pages/Dashboard/Certificate/CertificateDetail";
 import Announcement from "./pages/Dashboard/Announcement/Announcement";
 import Profile from "./pages/Dashboard/Profile/Profile";
+import Notifications from "./pages/Dashboard/Notification/Notifications";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import Checkout from "./pages/Checkout/Checkout";
@@ -183,6 +184,11 @@ export default function Router() {
                     <Route
                         path="profile"
                         element={<Profile />}
+                    />
+
+                    <Route
+                        path="notifications"
+                        element={<Notifications />}
                     />
 
                 </Route>

@@ -55,6 +55,55 @@ class JadwalForm
 
                         Textarea::make('keterangan')
                             ->columnSpanFull(),
+
+                        TextInput::make('jumlah_pertemuan')
+                            ->numeric()
+                            ->default(16)
+                            ->required(),
+
+                        Select::make('repeat_type')
+                            ->options([
+                                'daily' => 'Setiap Hari',
+                                'weekly' => 'Mingguan',
+                            ])
+                            ->default('weekly')
+                            ->required(),
+
+                        Select::make('hari')
+                            ->multiple()
+                            ->options([
+                                'monday' => 'Senin',
+                                'tuesday' => 'Selasa',
+                                'wednesday' => 'Rabu',
+                                'thursday' => 'Kamis',
+                                'friday' => 'Jumat',
+                                'saturday' => 'Sabtu',
+                                'sunday' => 'Minggu',
+                            ])
+                            ->visible(fn ($get) =>
+                                $get('repeat_type') === 'weekly'
+                            ),
+
+                        Select::make('exclude_days')
+                            ->label('Hari Libur')
+                            ->multiple()
+                            ->options([
+                                'monday' => 'Senin',
+                                'tuesday' => 'Selasa',
+                                'wednesday' => 'Rabu',
+                                'thursday' => 'Kamis',
+                                'friday' => 'Jumat',
+                                'saturday' => 'Sabtu',
+                                'sunday' => 'Minggu',
+                            ])
+                            ->default([
+                                'saturday',
+                                'sunday',
+                            ])
+                            ->helperText(
+                                'Hari yang akan dilewati saat generate jadwal'
+                            ),
+
                     ])
                     ->columns(2),
             ]);

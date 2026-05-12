@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\LogUser;
 use App\Models\SubProgram;
 use App\Models\Peserta;
+use App\Notifications\PaymentSuccessNotification;
+use App\Events\NewNotificationEvent;
 
 class Transaction extends Model
 {
@@ -47,9 +49,36 @@ class Transaction extends Model
             |--------------------------------------------------------------------------
             */
 
-            if ( $transaction->wasChanged( 'transaction_status' ) && in_array( $transaction->transaction_status, [ 'settlement', 'capture', ] )
+            if (
 
-            ) {
+                $transaction->wasChanged(
+                    'transaction_status'
+                )
+
+                &&
+
+                in_array(
+                    $transaction->transaction_status,
+                    [
+                        'settlement',
+                        'capture',
+                    ]
+                )
+
+                &&
+
+                ! in_array(
+                    $transaction->getOriginal(
+                        'transaction_status'
+                    ),
+                    [
+                        'settlement',
+                        'capture',
+                    ]
+                )
+
+            )
+            {
 
                 /*
                 |--------------------------------------------------------------------------
@@ -89,6 +118,37 @@ class Transaction extends Model
                         $peserta ->materis() ->attach( $materi->id, [ 'status' => 'proses', 'tanggal' => now(), ] );
                     }
                 }
+
+                /*
+                |--------------------------------------------------------------------------
+                | NOTIFICATION
+                |--------------------------------------------------------------------------
+                */
+
+                $transaction->user->notify(
+
+                    new PaymentSuccessNotification(
+                        $transaction
+                    )
+
+                );
+
+                $notification = $user
+
+                    ->notifications()
+
+                    ->latest()
+
+                    ->first();
+
+                event(
+
+                    new NewNotificationEvent(
+                        $notification,
+                        $user->id
+                    )
+
+                );
             }
         });
     }

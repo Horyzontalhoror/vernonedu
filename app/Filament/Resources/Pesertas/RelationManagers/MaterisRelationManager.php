@@ -53,6 +53,7 @@ class MaterisRelationManager extends RelationManager
                 TextColumn::make('subProgram.name')
 
                     ->label('Kelas')
+                    ->searchable()
 
                     ->sortable()
 

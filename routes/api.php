@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\User\CertificateController;
 use App\Http\Controllers\Api\User\ProfileController;
 use App\Http\Controllers\Api\User\CourseController;
 use App\Http\Controllers\Api\User\ScheduleController;
-
+use App\Http\Controllers\Api\User\NotificationController;
 /*
 |--------------------------------------------------------------------------
 | PUBLIC ROUTES
@@ -211,5 +211,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put(
         '/profile',
         [ProfileController::class, 'update']
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | MY notifications
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/notifications',
+        [NotificationController::class, 'index']
+    );
+
+    Route::post(
+        '/notifications/{id}/read',
+        [NotificationController::class, 'markAsRead']
     );
 });

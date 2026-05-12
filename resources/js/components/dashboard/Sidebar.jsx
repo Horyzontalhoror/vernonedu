@@ -5,6 +5,7 @@ import {
   CalendarDays,
   GraduationCap,
   Bell,
+  Megaphone,
   User,
   LayoutDashboard,
 } from "lucide-react";
@@ -35,6 +36,12 @@ export default function Sidebar() {
       name: "Announcement",
       path: "/dashboard/announcement",
       icon: Bell,
+    },
+
+    {
+    name: "Notifications",
+    path: "/dashboard/notifications",
+    icon: Megaphone,
     },
 
     {

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Peserta;
 
@@ -12,6 +13,7 @@ class LogUser extends Model
 {
     use HasFactory;
     use HasApiTokens;
+    use Notifiable;
 
     protected $fillable = [
         'nama',
