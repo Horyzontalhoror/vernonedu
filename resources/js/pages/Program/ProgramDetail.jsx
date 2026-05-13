@@ -33,17 +33,6 @@ export default function ProgramDetail({ data, loading, error, onClear }) {
         return (
             <aside className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
 
-            {/* Placeholder Image */}
-            <div className="h-52 w-full overflow-hidden rounded-xl bg-gray-100">
-
-            <img
-                src="https://placehold.co/600x400?text=Sub+Program"
-                alt="Sub Program"
-                className="h-full w-full object-cover"
-            />
-
-            </div>
-
             {/* Title */}
             <h3 className="mt-4 text-lg font-semibold text-slate-900">
                 Belum ada sub program dipilih

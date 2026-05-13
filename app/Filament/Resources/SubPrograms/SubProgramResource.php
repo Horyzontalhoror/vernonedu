@@ -10,6 +10,7 @@ use App\Filament\Resources\SubPrograms\Schemas\SubProgramForm;
 use App\Filament\Resources\SubPrograms\Schemas\SubProgramInfolist;
 use App\Filament\Resources\SubPrograms\Tables\SubProgramsTable;
 use App\Filament\Resources\SubPrograms\RelationManagers\MaterisRelationManager;
+use App\Filament\Resources\SubPrograms\RelationManagers\JadwalsRelationManager;
 use App\Models\SubProgram;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -50,6 +51,7 @@ class SubProgramResource extends Resource
     {
         return [
             MaterisRelationManager::class,
+            JadwalsRelationManager::class,
         ];
     }
 

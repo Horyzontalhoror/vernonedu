@@ -59,4 +59,11 @@ class SubProgram extends Model
             Certificate::class
         );
     }
+
+    public function jadwals()
+    {
+        return $this->hasMany(
+            Jadwal::class
+        );
+    }
 }

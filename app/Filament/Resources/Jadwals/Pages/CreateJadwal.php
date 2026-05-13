@@ -6,6 +6,8 @@ use App\Models\Jadwal;
 
 use Carbon\Carbon;
 
+use Illuminate\Support\Facades\DB;
+
 use Filament\Resources\Pages\CreateRecord;
 
 use App\Filament\Resources\Jadwals\JadwalResource;
@@ -19,55 +21,59 @@ class CreateJadwal extends CreateRecord
         array $data
     ): Jadwal {
 
-        /*
-        |--------------------------------------------------------------------------
-        | CONFIG
-        |--------------------------------------------------------------------------
-        */
+        DB::beginTransaction();
 
-        $jumlahPertemuan =
-            (int) $data['jumlah_pertemuan'];
+        try {
 
-        $repeatType =
-            $data['repeat_type'];
+            /*
+            |--------------------------------------------------------------------------
+            | CONFIG
+            |--------------------------------------------------------------------------
+            */
 
-        $hariDipilih =
-            $data['hari'] ?? [];
+            $jumlahPertemuan =
+                (int) $data['jumlah_pertemuan'];
 
-        $excludeDays =
-            $data['exclude_days']
-            ?? [];
+            $repeatType =
+                $data['repeat_type'];
 
-        $tanggal =
-            Carbon::parse(
-                $data['tanggal']
+            $hariDipilih =
+                $data['hari'] ?? [];
+
+            $excludeDays =
+                $data['exclude_days']
+                ?? [];
+
+            $tanggal =
+                Carbon::parse(
+                    $data['tanggal']
+                );
+
+            /*
+            |--------------------------------------------------------------------------
+            | REMOVE CUSTOM FIELD
+            |--------------------------------------------------------------------------
+            */
+
+            unset(
+
+                $data['jumlah_pertemuan'],
+
+                $data['repeat_type'],
+
+                $data['hari'],
+
+                $data['exclude_days'],
+
             );
 
-        /*
-        |--------------------------------------------------------------------------
-        | REMOVE CUSTOM FIELD
-        |--------------------------------------------------------------------------
-        */
+            /*
+            |--------------------------------------------------------------------------
+            | PREPARE INSERT
+            |--------------------------------------------------------------------------
+            */
 
-        unset(
-
-            $data['jumlah_pertemuan'],
-
-            $data['repeat_type'],
-
-            $data['hari'],
-
-            $data['exclude_days'],
-
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | DAILY
-        |--------------------------------------------------------------------------
-        */
-
-        if ($repeatType === 'daily') {
+            $rows = [];
 
             $created = 0;
 
@@ -80,94 +86,97 @@ class CreateJadwal extends CreateRecord
                     $tanggal->format('l')
                 );
 
+                $shouldCreate = false;
+
                 /*
                 |--------------------------------------------------------------------------
-                | SKIP EXCLUDED DAY
+                | DAILY
                 |--------------------------------------------------------------------------
                 */
 
                 if (
-                    ! in_array(
-                        $dayName,
-                        $excludeDays
-                    )
+                    $repeatType === 'daily'
                 ) {
 
-                    Jadwal::create([
+                    $shouldCreate =
+                        ! in_array(
+                            $dayName,
+                            $excludeDays
+                        );
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | WEEKLY
+                |--------------------------------------------------------------------------
+                */
+
+                else {
+
+                    $shouldCreate =
+
+                        in_array(
+                            $dayName,
+                            $hariDipilih
+                        )
+
+                        &&
+
+                        ! in_array(
+                            $dayName,
+                            $excludeDays
+                        );
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | INSERT
+                |--------------------------------------------------------------------------
+                */
+
+                if ($shouldCreate) {
+
+                    $rows[] = [
 
                         ...$data,
 
                         'tanggal' =>
-                            $tanggal
-                                ->copy(),
 
-                    ]);
+                            $tanggal
+                                ->copy()
+                                ->format('Y-m-d'),
+
+                        'created_at' =>
+                            now(),
+
+                        'updated_at' =>
+                            now(),
+
+                    ];
 
                     $created++;
                 }
 
                 $tanggal->addDay();
             }
+
+            /*
+            |--------------------------------------------------------------------------
+            | BULK INSERT
+            |--------------------------------------------------------------------------
+            */
+
+            Jadwal::insert($rows);
+
+            DB::commit();
+
+            return Jadwal::latest()->first();
+
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+
+            throw $e;
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | WEEKLY
-        |--------------------------------------------------------------------------
-        */
-
-        else {
-
-            $created = 0;
-
-            while (
-                $created <
-                $jumlahPertemuan
-            ) {
-
-                $dayName = strtolower(
-                    $tanggal->format('l')
-                );
-
-                /*
-                |--------------------------------------------------------------------------
-                | MATCH DAY
-                |--------------------------------------------------------------------------
-                */
-
-                if (
-
-                    in_array(
-                        $dayName,
-                        $hariDipilih
-                    )
-
-                    &&
-
-                    ! in_array(
-                        $dayName,
-                        $excludeDays
-                    )
-
-                ) {
-
-                    Jadwal::create([
-
-                        ...$data,
-
-                        'tanggal' =>
-                            $tanggal
-                                ->copy(),
-
-                    ]);
-
-                    $created++;
-                }
-
-                $tanggal->addDay();
-            }
-        }
-
-        return Jadwal::latest()->first();
     }
 }
