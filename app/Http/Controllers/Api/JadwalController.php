@@ -5,13 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Jadwal;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class JadwalController extends Controller
 {
-    /**
-     * 🔹 Endpoint: /api/jadwals
-     * Digunakan untuk ScheduleList (data lengkap + filter tanggal)
-     */
+    // GET /api/jadwals
     public function index(Request $request)
     {
         $query = Jadwal::with([
@@ -19,45 +17,58 @@ class JadwalController extends Controller
             'instruktur:id,nama'
         ]);
 
-        // Filter berdasarkan tanggal (optional)
         if ($request->filled('tanggal')) {
             $query->whereDate('tanggal', $request->tanggal);
         }
 
-        // Optional: urutkan
-        $query->orderBy('tanggal')
-              ->orderBy('waktu_mulai');
+        $jadwals = $query
+            ->orderBy('tanggal')
+            ->orderBy('waktu_mulai')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'tanggal' => Carbon::parse($item->tanggal)->format('Y-m-d'),
+                    'waktu_mulai' => $item->waktu_mulai,
+                    'waktu_selesai' => $item->waktu_selesai,
+                    'lokasi' => $item->lokasi,
+                    'status' => $item->status,
+                    'keterangan' => $item->keterangan,
+                    'sub_program' => [
+                        'id' => $item->subProgram?->id,
+                        'name' => $item->subProgram?->name,
+                    ],
+                    'instruktur' => [
+                        'id' => $item->instruktur?->id,
+                        'nama' => $item->instruktur?->nama,
+                    ],
+                ];
+            });
 
-        return response()->json($query->get());
+        return response()->json($jadwals);
     }
 
-    /**
-     * 🔹 Endpoint: /api/jadwals/calendar
-     * Digunakan untuk FullCalendar
-     */
+    // GET /api/jadwals/calendar
     public function calendar()
     {
-        $jadwals = Jadwal::with(['subProgram:id,name'])->get();
+        $events = Jadwal::with(['subProgram:id,name'])
+            ->get()
+            ->map(function ($item) {
 
-        $events = $jadwals->map(function ($item) {
-            return [
-                'id' => $item->id,
+                $tanggal = Carbon::parse($item->tanggal)->format('Y-m-d');
 
-                // Judul event
-                'title' => $item->subProgram->name ?? 'Kelas',
-
-                // Format wajib FullCalendar
-                'start' => $item->tanggal . 'T' . $item->waktu_mulai,
-                'end' => $item->tanggal . 'T' . $item->waktu_selesai,
-
-                // Data tambahan untuk React
-                'extendedProps' => [
-                    'status' => $item->status,
-                    'lokasi' => $item->lokasi,
-                    'tanggal' => $item->tanggal,
-                ],
-            ];
-        });
+                return [
+                    'id' => $item->id,
+                    'title' => $item->subProgram?->name ?? 'Kelas',
+                    'start' => $tanggal . 'T' . $item->waktu_mulai,
+                    'end' => $tanggal . 'T' . $item->waktu_selesai,
+                    'extendedProps' => [
+                        'status' => $item->status,
+                        'lokasi' => $item->lokasi,
+                        'tanggal' => $tanggal,
+                    ],
+                ];
+            });
 
         return response()->json($events);
     }

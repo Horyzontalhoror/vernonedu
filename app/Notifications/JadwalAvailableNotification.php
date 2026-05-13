@@ -3,14 +3,10 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-
-use Illuminate\Contracts\Queue\ShouldQueue;
-
 use Illuminate\Notifications\Notification;
+use Carbon\Carbon;
 
-class JadwalAvailableNotification
-    extends Notification
-    // implements ShouldQueue
+class JadwalAvailableNotification extends Notification
 {
     use Queueable;
 
@@ -26,37 +22,20 @@ class JadwalAvailableNotification
     public function toDatabase($notifiable)
     {
         return [
-
-            'title' =>
-
-                'Jadwal kelas tersedia',
+            'title' => 'Jadwal kelas tersedia',
 
             'message' =>
-
                 'Jadwal untuk kelas ' .
-
-                $this->jadwal
-                    ->subProgram
-                    ?->name .
-
+                $this->jadwal->subProgram?->name .
                 ' sudah tersedia pada ' .
+                Carbon::parse($this->jadwal->tanggal)
+                    ->format('d M Y'),
 
-                $this->jadwal
-                    ->tanggal
-                    ?->format('d M Y'),
+            'type' => 'jadwal',
 
-            'type' =>
+            'jadwal_id' => $this->jadwal->id,
 
-                'jadwal',
-
-            'jadwal_id' =>
-
-                $this->jadwal->id,
-
-            'action_url' =>
-
-                '/dashboard/calendar',
-
+            'action_url' => '/dashboard/calendar',
         ];
     }
 }
