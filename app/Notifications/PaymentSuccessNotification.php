@@ -28,13 +28,9 @@ class PaymentSuccessNotification
 
             'message' =>
 
-                'Pembayaran kelas '
-
-                . $this->transaction
-                    ->subProgram
-                    ?->name
-
-                . ' berhasil dikonfirmasi.',
+                'Pembayaran untuk kelas ' .
+                $this->transaction->subProgram?->name .
+                ' berhasil dikonfirmasi. Kelas sudah tersedia di menu My Course.',
 
             'type' =>
                 'payment',

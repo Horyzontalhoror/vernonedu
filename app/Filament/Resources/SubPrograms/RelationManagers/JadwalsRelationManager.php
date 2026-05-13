@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\SubPrograms\RelationManagers;
 
 use App\Models\Jadwal;
+use App\Models\Peserta;
 
 use Carbon\Carbon;
 
@@ -15,6 +16,8 @@ use Filament\Actions\DeleteAction;
 use Filament\Resources\RelationManagers\RelationManager;
 
 use App\Filament\Resources\Jadwals\Schemas\JadwalForm;
+
+use App\Notifications\JadwalAvailableNotification;
 
 use Filament\Schemas\Schema;
 
@@ -281,7 +284,7 @@ class JadwalsRelationManager
 
                             /*
                             |--------------------------------------------------------------------------
-                            | INSERT
+                            | INSERT DATA
                             |--------------------------------------------------------------------------
                             */
 
@@ -320,6 +323,83 @@ class JadwalsRelationManager
                         */
 
                         Jadwal::insert($rows);
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | GET CREATED SCHEDULE
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $jadwals = Jadwal::where(
+
+                            'sub_program_id',
+
+                            $data['sub_program_id']
+
+                        )
+
+                        ->latest()
+
+                        ->take($jumlahPertemuan)
+
+                        ->get();
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | PESERTA
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $pesertas = Peserta::whereHas(
+
+                            'subPrograms',
+
+                            function ($q) use ($data) {
+
+                                $q->where(
+                                    'sub_program_id',
+                                    $data['sub_program_id']
+                                );
+                            }
+
+                        )
+
+                        ->with('logUser')
+
+                        ->get();
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | SEND NOTIFICATION
+                        |--------------------------------------------------------------------------
+                        */
+
+                        foreach (
+                            $pesertas as $peserta
+                        ) {
+
+                            if (
+                                ! $peserta->logUser
+                            ) {
+
+                                continue;
+                            }
+
+                            foreach (
+                                $jadwals as $jadwal
+                            ) {
+
+                                $peserta
+                                    ->logUser
+                                    ->notify(
+
+                                        new JadwalAvailableNotification(
+                                            $jadwal
+                                        )
+
+                                    );
+                            }
+                        }
 
                         return Jadwal::latest()->first();
                     }),
