@@ -229,32 +229,108 @@ export default function MyCourse() {
 
         {/* EMPTY */}
         {!loading &&
-          !error &&
-          courses.length === 0 && (
+        !error &&
+        courses.length === 0 && (
 
-          <div className="rounded-3xl border border-dashed border-[#DFD0EB] bg-white p-14 text-center shadow-sm">
+        <div className="rounded-3xl border border-dashed border-[#DFD0EB] bg-white p-14 text-center shadow-sm">
 
+            {/* ICON */}
             <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[#F4ECF9]">
 
-              <BookOpen className="h-10 w-10 text-[#7A5C92]" />
+            <BookOpen className="h-10 w-10 text-[#7A5C92]" />
 
             </div>
 
+            {/* TITLE */}
             <h3 className="mt-6 text-2xl font-bold text-gray-800">
 
-              Belum Ada Course
+            Belum Ada Course
 
             </h3>
 
+            {/* DESCRIPTION */}
             <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-gray-500">
 
-              Anda belum memiliki course aktif.
-              Silakan daftar program terlebih dahulu
-              untuk mulai belajar.
+            Anda belum memiliki course aktif.
+            Silakan daftar program terlebih dahulu
+            untuk mulai belajar bersama VernonEdu.
 
             </p>
 
-          </div>
+            {/* ALERT */}
+            <div className="mx-auto mt-8 max-w-2xl rounded-3xl border border-amber-200 bg-amber-50 p-6 text-left">
+
+            <div className="flex items-start gap-4">
+
+                {/* ICON */}
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100">
+
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.8}
+                    stroke="currentColor"
+                    className="h-6 w-6 text-amber-600"
+                >
+
+                    <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM12 15.75h.007v.008H12v-.008Z"
+                    />
+
+                </svg>
+
+                </div>
+
+                {/* CONTENT */}
+                <div>
+
+                <h4 className="text-sm font-bold text-amber-800">
+
+                    Menunggu Konfirmasi Pembayaran?
+
+                </h4>
+
+                <p className="mt-2 text-sm leading-relaxed text-amber-700">
+
+                    Jika Anda sudah melakukan pembayaran,
+                    course akan muncul setelah pembayaran
+                    dikonfirmasi oleh admin VernonEdu.
+                    Proses verifikasi biasanya membutuhkan
+                    beberapa saat tergantung metode pembayaran
+                    yang digunakan.
+
+                </p>
+
+                <ul className="mt-4 space-y-2 text-sm text-amber-700">
+
+                    <li>
+                    • Pastikan pembayaran telah berhasil dilakukan
+                    </li>
+
+                    <li>
+                    • Tunggu admin melakukan verifikasi pembayaran
+                    </li>
+
+                    <li>
+                    • Setelah dikonfirmasi, course otomatis muncul di dashboard
+                    </li>
+
+                    <li>
+                    • Anda juga akan menerima notifikasi ketika kelas aktif
+                    </li>
+
+                </ul>
+
+                </div>
+
+            </div>
+
+            </div>
+
+        </div>
 
         )}
 
