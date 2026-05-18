@@ -4,110 +4,257 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+
 use App\Models\LogUser;
+use App\Models\User;
+
 use Illuminate\Support\Facades\Hash;
+
+use App\Notifications\AdminValidationNotification;
 
 class AuthController extends Controller
 {
-    /**
-     * 🔹 REGISTER
-     */
+    //register
     public function register(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|max:255',
-            'email' => 'required|email|unique:log_users,email',
-            'no_telepon' => 'required|string|unique:log_users,no_telepon',
-            'password' => 'required|min:6|confirmed',
+
+            'nama' =>
+
+                'required|string|max:255',
+
+            'email' =>
+
+                'required|email|unique:log_users,email',
+
+            'no_telepon' =>
+
+                'required|string|unique:log_users,no_telepon',
+
+            'password' =>
+
+                'required|min:6|confirmed',
+
         ]);
 
-        $status = 'pending'; // atau 'active' untuk testing
+        //status
+        $status = 'pending';
 
+        //create user
         $user = LogUser::create([
-            'nama' => $request->nama,
-            'email' => $request->email, // ✅ tambah email
-            'no_telepon' => $request->no_telepon,
-            'password' => Hash::make($request->password),
-            'status' => $status,
+
+            'nama' =>
+
+                $request->nama,
+
+            'email' =>
+
+                $request->email,
+
+            'no_telepon' =>
+
+                $request->no_telepon,
+
+            'password' =>
+
+                Hash::make(
+                    $request->password
+                ),
+
+            'status' =>
+
+                $status,
+
         ]);
+
+        //notif admin
+        $admins = User::all();
+
+        foreach ($admins as $admin) {
+
+            $admin->notify(
+
+                new AdminValidationNotification(
+
+                    title:
+                        'Peserta Baru',
+
+                    message:
+                        'Peserta baru ' .
+                        $user->nama .
+                        ' menunggu validasi admin.',
+
+                    url:
+                        '/admin/log-users'
+
+                )
+
+            );
+        }
 
         return response()->json([
-            'message' => $status === 'active'
-                ? 'Register berhasil, akun langsung aktif'
+
+            'message' =>
+
+                $status === 'active'
+
+                ? 'Register berhasil'
+
                 : 'Register berhasil, tunggu validasi admin'
+
         ]);
     }
 
-    /**
-     * 🔹 LOGIN (EMAIL ATAU NO HP)
-     */
+    //login
     public function login(Request $request)
     {
         $request->validate([
-            'login' => 'required', // ✅ bukan no_telepon lagi
-            'password' => 'required',
+
+            'login' =>
+
+                'required',
+
+            'password' =>
+
+                'required',
+
         ]);
 
-        // 🔍 cari user berdasarkan email ATAU no telepon
-        $user = LogUser::where('no_telepon', $request->login)
-            ->orWhere('email', $request->login)
-            ->first();
+        //find user
+        $user = LogUser::where(
 
-        // ❌ user tidak ditemukan
-        if (!$user) {
+            'no_telepon',
+
+            $request->login
+
+        )
+
+        ->orWhere(
+
+            'email',
+
+            $request->login
+
+        )
+
+        ->first();
+
+        //not found
+        if (! $user) {
+
             return response()->json([
-                'message' => 'Email atau nomor telepon tidak terdaftar'
+
+                'message' =>
+
+                    'Email atau nomor telepon tidak terdaftar'
+
             ], 404);
         }
 
-        // ❌ password salah
-        if (!Hash::check($request->password, $user->password)) {
+        //wrong password
+        if (
+
+            ! Hash::check(
+
+                $request->password,
+
+                $user->password
+
+            )
+
+        ) {
+
             return response()->json([
-                'message' => 'Password salah'
+
+                'message' =>
+
+                    'Password salah'
+
             ], 401);
         }
 
-        // ❌ belum aktif
-        if ($user->status === 'pending') {
+        //pending
+        if (
+
+            $user->status ===
+            'pending'
+
+        ) {
+
             return response()->json([
-                'message' => 'Akun Anda sedang menunggu validasi admin'
+
+                'message' =>
+
+                    'Akun menunggu validasi admin'
+
             ], 403);
         }
 
-        // ❌ ditolak
-        if ($user->status === 'rejected') {
+        //rejected
+        if (
+
+            $user->status ===
+            'rejected'
+
+        ) {
+
             return response()->json([
-                'message' => 'Akun Anda ditolak oleh admin'
+
+                'message' =>
+
+                    'Akun ditolak admin'
+
             ], 403);
         }
 
-        // 🔥 buat token
-        $token = $user->createToken('auth_token')->plainTextToken;
+        //token
+        $token = $user
+
+            ->createToken(
+                'auth_token'
+            )
+
+            ->plainTextToken;
 
         return response()->json([
-            'message' => 'Login berhasil',
-            'token' => $token,
-            'user' => $user,
+
+            'message' =>
+
+                'Login berhasil',
+
+            'token' =>
+
+                $token,
+
+            'user' =>
+
+                $user,
+
         ]);
     }
 
-    /**
-     * 🔹 LOGOUT
-     */
+    //logout
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $request
+            ->user()
+            ->currentAccessToken()
+            ->delete();
 
         return response()->json([
-            'message' => 'Logout berhasil'
+
+            'message' =>
+
+                'Logout berhasil'
+
         ]);
     }
 
-    /**
-     * 🔹 GET USER (ME)
-     */
+    //me
     public function me(Request $request)
     {
-        return response()->json($request->user());
+        return response()->json(
+            $request->user()
+        );
     }
 }

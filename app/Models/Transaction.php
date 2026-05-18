@@ -7,314 +7,174 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\LogUser;
 use App\Models\SubProgram;
 use App\Models\Peserta;
+use App\Models\User;
 
 use App\Notifications\PaymentSuccessNotification;
 use App\Notifications\JadwalAvailableNotification;
+use App\Notifications\AdminValidationNotification;
 
 use App\Events\NewNotificationEvent;
 
 class Transaction extends Model
 {
     protected $fillable = [
-
         'order_id',
-
         'amount',
-
         'snap_token',
-
         'payment_type',
-
         'transaction_status',
-
         'user_id',
-
         'sub_program_id',
-
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | USER
-    |--------------------------------------------------------------------------
-    */
-
+    //user
     public function user()
     {
-        return $this->belongsTo(
-            LogUser::class,
-            'user_id'
-        );
+        return $this->belongsTo(LogUser::class, 'user_id');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | SUB PROGRAM
-    |--------------------------------------------------------------------------
-    */
-
+    //sub program
     public function subProgram()
     {
-        return $this->belongsTo(
-            SubProgram::class
-        );
+        return $this->belongsTo(SubProgram::class);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | HELPER NAMA
-    |--------------------------------------------------------------------------
-    */
-
+    //helper nama
     public function getNamaAttribute()
     {
         return $this->user?->nama ?? '-';
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | AUTO PROCESS
-    |--------------------------------------------------------------------------
-    */
-
+    //auto process
     protected static function booted()
     {
-        static::updated(function (
-            $transaction
-        ) {
+        //notif admin pembayaran baru
+        static::created(function ($transaction) {
 
-            /*
-            |--------------------------------------------------------------------------
-            | STATUS BERHASIL
-            |--------------------------------------------------------------------------
-            */
+            $admins = User::all();
 
-            if (
+            foreach ($admins as $admin) {
 
-                $transaction->wasChanged(
-                    'transaction_status'
-                )
+                $admin->notify(
 
-                &&
+                    new AdminValidationNotification(
 
-                in_array(
-                    $transaction->transaction_status,
-                    [
-                        'settlement',
-                        'capture',
-                    ]
-                )
+                        title: 'Pembayaran Baru',
 
-                &&
+                        message:
+                            'Peserta ' .
+                            $transaction->user?->nama .
+                            ' melakukan pembayaran kelas ' .
+                            $transaction->subProgram?->name .
+                            '.',
 
-                ! in_array(
-                    $transaction->getOriginal(
-                        'transaction_status'
-                    ),
-                    [
-                        'settlement',
-                        'capture',
-                    ]
-                )
+                        url: '/admin/transactions'
 
-            ) {
-
-                /*
-                |--------------------------------------------------------------------------
-                | USER
-                |--------------------------------------------------------------------------
-                */
-
-                $user =
-                    $transaction->user;
-
-                if (! $user) {
-                    return;
-                }
-
-                /*
-                |--------------------------------------------------------------------------
-                | PESERTA
-                |--------------------------------------------------------------------------
-                */
-
-                $peserta =
-                    Peserta::firstOrCreate(
-
-                        [
-                            'log_user_id' =>
-                                $transaction->user_id,
-                        ],
-
-                        [
-                            'status' =>
-                                'active',
-                        ]
-
-                    );
-
-                /*
-                |--------------------------------------------------------------------------
-                | ENROLL COURSE
-                |--------------------------------------------------------------------------
-                */
-
-                $peserta
-                    ->subPrograms()
-                    ->syncWithoutDetaching([
-
-                        $transaction
-                            ->sub_program_id
-
-                    ]);
-
-                /*
-                |--------------------------------------------------------------------------
-                | EXISTING SCHEDULE
-                |--------------------------------------------------------------------------
-                */
-
-                $jadwals =
-                    \App\Models\Jadwal::where(
-
-                        'sub_program_id',
-
-                        $transaction
-                            ->sub_program_id
-
-                    )
-
-                    ->get();
-
-                foreach (
-                    $jadwals as $jadwal
-                ) {
-
-                    $user->notify(
-
-                        new JadwalAvailableNotification(
-                            $jadwal
-                        )
-
-                    );
-                }
-
-                /*
-                |--------------------------------------------------------------------------
-                | SUB PROGRAM
-                |--------------------------------------------------------------------------
-                */
-
-                $subProgram =
-                    SubProgram::with([
-                        'materis'
-                    ])
-
-                    ->find(
-                        $transaction
-                            ->sub_program_id
-                    );
-
-                if (! $subProgram) {
-                    return;
-                }
-
-                /*
-                |--------------------------------------------------------------------------
-                | AUTO CREATE PROGRESS
-                |--------------------------------------------------------------------------
-                */
-
-                foreach (
-                    $subProgram->materis
-                    as $materi
-                ) {
-
-                    if (
-
-                        ! $peserta
-
-                            ->materis()
-
-                            ->where(
-                                'materi_id',
-                                $materi->id
-                            )
-
-                            ->exists()
-
-                    ) {
-
-                        $peserta
-                            ->materis()
-                            ->attach(
-
-                                $materi->id,
-
-                                [
-
-                                    'status' =>
-                                        'proses',
-
-                                    'tanggal' =>
-                                        now(),
-
-                                ]
-
-                            );
-                    }
-                }
-
-                /*
-                |--------------------------------------------------------------------------
-                | PAYMENT NOTIFICATION
-                |--------------------------------------------------------------------------
-                */
-
-                $user->notify(
-
-                    new PaymentSuccessNotification(
-                        $transaction
                     )
 
                 );
+            }
+        });
 
-                /*
-                |--------------------------------------------------------------------------
-                | LAST NOTIFICATION
-                |--------------------------------------------------------------------------
-                */
+        //payment success
+        static::updated(function ($transaction) {
 
-                $notification =
+            //cek status
+            if (
+                ! $transaction->wasChanged('transaction_status') ||
+                ! in_array($transaction->transaction_status, ['settlement', 'capture']) ||
+                in_array($transaction->getOriginal('transaction_status'), ['settlement', 'capture'])
+            ) {
+                return;
+            }
 
-                    $user
+            //user
+            $user = $transaction->user;
 
-                        ->notifications()
+            if (! $user) {
+                return;
+            }
 
-                        ->latest()
+            //peserta
+            $peserta = Peserta::firstOrCreate(
+                [
+                    'log_user_id' => $transaction->user_id,
+                ],
+                [
+                    'status' => 'active',
+                ]
+            );
 
-                        ->first();
+            //enroll
+            $peserta->subPrograms()->syncWithoutDetaching([
+                $transaction->sub_program_id
+            ]);
 
-                /*
-                |--------------------------------------------------------------------------
-                | REALTIME EVENT
-                |--------------------------------------------------------------------------
-                */
+            //jadwal
+            $jadwals = Jadwal::where(
+                'sub_program_id',
+                $transaction->sub_program_id
+            )->get();
 
-                if ($notification) {
+            //notif jadwal sekali saja
+            if ($jadwals->count() > 0) {
 
-                    event(
+                $user->notify(
+                    new JadwalAvailableNotification(
+                        $jadwals->first()
+                    )
+                );
+            }
 
-                        new NewNotificationEvent(
+            //sub program
+            $subProgram = SubProgram::with('materis')->find(
+                $transaction->sub_program_id
+            );
 
-                            $notification,
+            if (! $subProgram) {
+                return;
+            }
 
-                            $user->id
+            //progress
+            foreach ($subProgram->materis as $materi) {
 
-                        )
+                $exists = $peserta
+                    ->materis()
+                    ->where('materi_id', $materi->id)
+                    ->exists();
 
+                if (! $exists) {
+
+                    $peserta->materis()->attach(
+                        $materi->id,
+                        [
+                            'status' => 'proses',
+                            'tanggal' => now(),
+                        ]
                     );
                 }
+            }
+
+            //notif payment
+            $user->notify(
+                new PaymentSuccessNotification($transaction)
+            );
+
+            //last notif
+            $notification = $user
+                ->notifications()
+                ->latest()
+                ->first();
+
+            //realtime
+            if ($notification) {
+
+                event(
+                    new NewNotificationEvent(
+                        $notification,
+                        $user->id
+                    )
+                );
             }
         });
     }
