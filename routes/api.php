@@ -13,6 +13,30 @@ use App\Http\Controllers\Api\User\ProfileController;
 use App\Http\Controllers\Api\User\CourseController;
 use App\Http\Controllers\Api\User\ScheduleController;
 use App\Http\Controllers\Api\User\NotificationController;
+
+//tes
+use Illuminate\Support\Facades\Mail;
+
+Route::get('/test-mail', function () {
+
+    Mail::raw(
+
+        'Test email VernonEdu',
+
+        function ($message) {
+
+            $message
+                ->to('specbr96@gmail.com')
+                ->subject('Test Mail VernonEdu');
+        }
+
+    );
+
+    return response()->json([
+        'message' => 'Mail sent!',
+    ]);
+});
+
 /*
 |--------------------------------------------------------------------------
 | PUBLIC ROUTES
@@ -228,4 +252,6 @@ Route::middleware('auth:sanctum')->group(function () {
         '/notifications/{id}/read',
         [NotificationController::class, 'markAsRead']
     );
+
+
 });

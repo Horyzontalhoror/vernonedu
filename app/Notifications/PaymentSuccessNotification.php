@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\MailMessage;
 
 class PaymentSuccessNotification
     extends Notification
@@ -16,7 +17,13 @@ class PaymentSuccessNotification
 
     public function via($notifiable)
     {
-        return ['database'];
+        return [
+
+            'database',
+
+            'mail',
+
+        ];
     }
 
     public function toDatabase($notifiable)
@@ -40,4 +47,30 @@ class PaymentSuccessNotification
 
         ];
     }
+
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+
+            ->subject(
+                'Pembayaran Berhasil'
+            )
+
+            ->greeting(
+                'Halo ' .
+                $notifiable->nama
+            )
+
+            ->line(
+                'Pembayaran untuk kelas ' .
+                $this->transaction->subProgram?->name .
+                ' berhasil dikonfirmasi.'
+            )
+
+            ->action(
+                'Lihat Course',
+                url('/dashboard')
+            );
+    }
+
 }

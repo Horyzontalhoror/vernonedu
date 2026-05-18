@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\MailMessage;
 use Carbon\Carbon;
 
 class JadwalAvailableNotification extends Notification
@@ -16,7 +17,13 @@ class JadwalAvailableNotification extends Notification
 
     public function via($notifiable)
     {
-        return ['database'];
+        return [
+
+            'database',
+
+            'mail',
+
+        ];
     }
 
     public function toDatabase($notifiable)
@@ -38,4 +45,31 @@ class JadwalAvailableNotification extends Notification
             'action_url' => '/dashboard/calendar',
         ];
     }
+
+
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+
+            ->subject(
+                'Jadwal Kelas Tersedia'
+            )
+
+            ->greeting(
+                'Halo ' .
+                $notifiable->nama
+            )
+
+            ->line(
+                'Jadwal untuk kelas ' .
+                $this->jadwal->subProgram?->name .
+                ' sudah tersedia.'
+            )
+
+            ->action(
+                'Lihat Jadwal',
+                url('/dashboard/calendar')
+            );
+    }
+
 }

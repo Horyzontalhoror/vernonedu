@@ -3,7 +3,7 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class AnnouncementNotification
@@ -17,7 +17,26 @@ class AnnouncementNotification
 
     public function via($notifiable)
     {
-        return ['database'];
+        return [
+
+            'database',
+
+            'mail',
+
+        ];
+    }
+
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+
+            ->subject(
+                'Pengumuman'
+            )
+
+            ->line(
+                'Pengumuman terbaru.'
+            );
     }
 
     public function toDatabase($notifiable)
