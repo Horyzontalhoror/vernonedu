@@ -55,7 +55,7 @@ class TransactionController extends Controller
                 ]
             ],
             'callbacks' => [
-                    'finish' => url('/dashboard')
+                    'finish' => url('/payment-success')
                 ]
         ];
 

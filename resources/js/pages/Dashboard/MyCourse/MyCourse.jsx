@@ -244,18 +244,16 @@ export default function MyCourse() {
             {/* TITLE */}
             <h3 className="mt-6 text-2xl font-bold text-gray-800">
 
-            Belum Ada Course
+            Belum Ada Course Aktif
 
             </h3>
 
             {/* DESCRIPTION */}
-            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-gray-500">
+            {/* <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-gray-500">
 
             Anda belum memiliki course aktif.
-            Silakan daftar program terlebih dahulu
-            untuk mulai belajar bersama VernonEdu.
 
-            </p>
+            </p> */}
 
             {/* ALERT */}
             <div className="mx-auto mt-8 max-w-2xl rounded-3xl border border-amber-200 bg-amber-50 p-6 text-left">

@@ -26,7 +26,7 @@ Route::get('/test-mail', function () {
         function ($message) {
 
             $message
-                ->to('specbr96@gmail.com')
+                ->to('test@gmail.com')
                 ->subject('Test Mail VernonEdu');
         }
 

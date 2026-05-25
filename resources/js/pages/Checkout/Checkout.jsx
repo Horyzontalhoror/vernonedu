@@ -5,20 +5,11 @@ import { motion } from "framer-motion";
 export default function Checkout() {
 
   const { id } = useParams();
-
   const navigate = useNavigate();
-
-  const [program, setProgram] =
-    useState(null);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [loadingPay, setLoadingPay] =
-    useState(false);
-
-  const [showMateri, setShowMateri] =
-    useState(false);
+  const [program, setProgram] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadingPay, setLoadingPay] = useState(false);
+  const [showMateri, setShowMateri] = useState(false);
 
   /*
   |--------------------------------------------------------------------------
@@ -29,9 +20,7 @@ export default function Checkout() {
   useEffect(() => {
 
     const fetchData = async () => {
-
       try {
-
         const res = await fetch(
           `http://localhost:8000/api/sub-programs/${id}`
         );
@@ -123,9 +112,33 @@ export default function Checkout() {
         return;
       }
 
-      window.snap.pay(
-        data.snap_token
-      );
+        window.snap.pay(data.snap_token, {
+
+            onSuccess: function () {
+
+                navigate(
+                    "/payment-success"
+                );
+
+            },
+
+            onPending: function () {
+
+                navigate(
+                    "/payment-success"
+                );
+
+            },
+
+            onError: function () {
+
+                alert(
+                    "Pembayaran gagal"
+                );
+
+            },
+
+        });
 
     } catch (err) {
 
@@ -374,17 +387,32 @@ export default function Checkout() {
 
               </div>
 
-              {/* BACK */}
-              <button
-                onClick={() =>
-                  navigate(-1)
-                }
-                className="mt-8 text-sm font-medium text-gray-400 transition hover:text-gray-600"
-              >
+                {/* BACK */}
+                <button
+                onClick={() => navigate(-1)}
+                className="mt-8 inline-flex items-center gap-2 rounded-2xl border border-[#E8D9F0] bg-white px-5 py-3 text-sm font-semibold text-gray-600 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#D8BEEA] hover:bg-[#FAF7FC] hover:text-[#7A5C92] hover:shadow-md"
+                >
 
-                ← Kembali
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    className="h-4 w-4"
+                >
 
-              </button>
+                    <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 19.5 8.25 12l7.5-7.5"
+                    />
+
+                </svg>
+
+                Kembali
+
+                </button>
 
             </div>
 
@@ -416,6 +444,44 @@ export default function Checkout() {
                 </div>
 
                 <div className="mt-8 space-y-4">
+
+                    {/* <div className="rounded-2xl border border-yellow-300/20 bg-red-500/10 p-5">
+
+                        <h3 className="font-semibold text-yellow-100">
+
+                            Verifikasi Pembayaran
+
+                        </h3>
+
+                        <p className="mt-2 text-sm leading-relaxed text-yellow-50/80">
+
+                            Pembayaran akan dikonfirmasi oleh admin VernonEdu.
+                            Proses verifikasi biasanya membutuhkan beberapa saat
+                            tergantung metode pembayaran yang digunakan.
+
+                        </p>
+
+                        <ul className="mt-4 space-y-2 text-sm text-yellow-50/70">
+
+                            <li>
+                            • Pastikan pembayaran telah berhasil dilakukan
+                            </li>
+
+                            <li>
+                            • Tunggu admin melakukan verifikasi pembayaran
+                            </li>
+
+                            <li>
+                            • Setelah dikonfirmasi, course otomatis muncul di dashboard
+                            </li>
+
+                            <li>
+                            • Anda akan menerima notifikasi ketika kelas aktif
+                            </li>
+
+                        </ul>
+
+                    </div> */}
 
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
 

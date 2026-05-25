@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\LogUser;
 use App\Models\SubProgram;
 use App\Models\Peserta;
+use App\Models\Jadwal;
 use App\Models\User;
 
 use App\Notifications\PaymentSuccessNotification;

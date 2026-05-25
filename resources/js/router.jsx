@@ -18,6 +18,9 @@ import Notifications from "./pages/Dashboard/Notification/Notifications";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Checkout from "./pages/Checkout/Checkout";
 import AuthModal from "./auth/AuthModal";
+import PaymentSuccess from "./pages/Checkout/PaymentSuccess";
+
+import loadingGif from "./components/assets/loading.gif";
 
 export default function Router() {
 
@@ -88,9 +91,33 @@ export default function Router() {
     if (loading) {
 
         return (
-            <div className="p-10">
-                Loading...
+
+            <div className="flex min-h-[60vh] items-center justify-center">
+
+                <div className="flex flex-col items-center">
+
+                    <img
+                    src={loadingGif}
+                    alt="Loading"
+                    className="h-40 w-40"
+                    />
+
+                    <h3 className="mt-4 text-sm font-semibold text-gray-700">
+
+                        Memuat Data
+
+                    </h3>
+
+                    <p className="mt-1 text-xs text-gray-400">
+
+                        Mohon tunggu sebentar...
+
+                    </p>
+
+                </div>
+
             </div>
+
         );
 
     }
@@ -135,6 +162,11 @@ export default function Router() {
                             <Checkout />
                         </ProtectedRoute>
                     }
+                />
+
+                <Route
+                    path="/payment-success"
+                    element={<PaymentSuccess />}
                 />
 
                 <Route
