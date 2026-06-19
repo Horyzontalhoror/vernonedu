@@ -24,7 +24,7 @@ export default function Checkout() {
         const fetchData = async () => {
             try {
                 const res = await fetch(
-                    `http://localhost:8000/api/sub-programs/${id}`
+                    `/api/sub-programs/${id}`
                 );
                 if (!res.ok) throw new Error("Gagal fetch data");
                 const data = await res.json();
@@ -64,7 +64,7 @@ export default function Checkout() {
 
         try {
             const res = await fetch(
-                "http://localhost:8000/api/create-transaction",
+                "/api/create-transaction",
                 {
                     method: "POST",
                     headers: {
@@ -164,80 +164,157 @@ export default function Checkout() {
             : [];
     return (
         <>
-        <div className="min-h-screen bg-gradient-to-br from-[#F9F5FC] via-white to-[#F4ECF9] p-6">
-            <div className="mx-auto max-w-6xl">
-                <motion.div
-                    initial={{ opacity: 0, y: 30, }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="overflow-hidden rounded-[32px] border border-[#E8D9F0] bg-white shadow-xl"
-                >
+            <div className="min-h-screen bg-gradient-to-br from-[#F9F5FC] via-white to-[#F4ECF9] p-6">
+                <div className="mx-auto max-w-6xl">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30, }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="overflow-hidden rounded-[32px] border border-[#E8D9F0] bg-white shadow-xl"
+                    >
 
-                    <div className="grid lg:grid-cols-2">
-                        {/* LEFT */}
-                        <div className="p-8 lg:p-10">
-                            {/* HEADER */}
-                            <div>
-                                <p className="text-xs font-semibold uppercase tracking-widest text-[#7A5C92]">
-                                    Checkout Program
-                                </p>
-                                <h1 className="mt-2 text-3xl font-bold text-gray-800">
-                                    {program.name}
-                                </h1>
-                                <p className="mt-4 text-sm leading-relaxed text-gray-500">
-                                    {program.description ||
-                                        "Deskripsi program belum tersedia."}
-                                </p>
-                            </div>
-                            {/* INFO */}
-                            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                                <div className="rounded-2xl border border-[#E8D9F0] bg-[#FCFAFD] p-5">
-                                    <p className="text-xs font-medium text-gray-400">
-                                        Usia
+                        <div className="grid lg:grid-cols-2">
+                            {/* LEFT */}
+                            <div className="p-8 lg:p-10">
+                                {/* HEADER */}
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-widest text-[#7A5C92]">
+                                        Checkout Program
                                     </p>
-                                    <p className="mt-2 text-lg font-bold text-gray-800">
-                                        {program.usia || "-"}
+                                    <h1 className="mt-2 text-3xl font-bold text-gray-800">
+                                        {program.name}
+                                    </h1>
+                                    <p className="mt-4 text-sm leading-relaxed text-gray-500">
+                                        {program.description ||
+                                            "Deskripsi program belum tersedia."}
                                     </p>
                                 </div>
-                                <div className="rounded-2xl border border-[#E8D9F0] bg-[#FCFAFD] p-5">
-                                    <p className="text-xs font-medium text-gray-400">
-                                        Total Materi
-                                    </p>
-                                    <p className="mt-2 text-lg font-bold text-gray-800">
-                                        {materis.length} Materi
-                                    </p>
+                                {/* INFO */}
+                                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                                    <div className="rounded-2xl border border-[#E8D9F0] bg-[#FCFAFD] p-5">
+                                        <p className="text-xs font-medium text-gray-400">
+                                            Usia
+                                        </p>
+                                        <p className="mt-2 text-lg font-bold text-gray-800">
+                                            {program.usia || "-"}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-2xl border border-[#E8D9F0] bg-[#FCFAFD] p-5">
+                                        <p className="text-xs font-medium text-gray-400">
+                                            Total Materi
+                                        </p>
+                                        <p className="mt-2 text-lg font-bold text-gray-800">
+                                            {materis.length} Materi
+                                        </p>
+
+                                    </div>
 
                                 </div>
 
-                            </div>
+                                {/* MATERI */}
+                                <div className="mt-8">
 
-                            {/* MATERI */}
-                            <div className="mt-8">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setShowMateri(
+                                                !showMateri
+                                            )
+                                        }
+                                        className="flex w-full items-center justify-between rounded-2xl border border-[#E8D9F0] bg-[#FCFAFD] px-5 py-4 transition hover:bg-[#F8F3FB]"
+                                    >
 
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        setShowMateri(
-                                            !showMateri
-                                        )
-                                    }
-                                    className="flex w-full items-center justify-between rounded-2xl border border-[#E8D9F0] bg-[#FCFAFD] px-5 py-4 transition hover:bg-[#F8F3FB]"
-                                >
+                                        <div className="flex items-center gap-3">
 
-                                    <div className="flex items-center gap-3">
+                                            <h3 className="text-lg font-bold text-gray-800">
 
-                                        <h3 className="text-lg font-bold text-gray-800">
+                                                Materi
 
-                                            Materi
+                                            </h3>
 
-                                        </h3>
+                                            <div className="rounded-xl bg-[#EDE0F5] px-3 py-1 text-xs font-semibold text-[#7A5C92]">
 
-                                        <div className="rounded-xl bg-[#EDE0F5] px-3 py-1 text-xs font-semibold text-[#7A5C92]">
+                                                {materis.length}
 
-                                            {materis.length}
+                                            </div>
 
                                         </div>
 
-                                    </div>
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            strokeWidth={2}
+                                            stroke="currentColor"
+                                            className={`h-5 w-5 text-[#7A5C92] transition ${showMateri
+                                                ? "rotate-180"
+                                                : ""
+                                                }`}
+                                        >
+
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                                            />
+
+                                        </svg>
+
+                                    </button>
+
+                                    {showMateri && (
+
+                                        <div className="mt-5 space-y-4">
+
+                                            {materis.map(
+                                                (
+                                                    materi,
+                                                    index
+                                                ) => (
+
+                                                    <div
+                                                        key={materi.id}
+                                                        className="flex items-start gap-4 rounded-2xl border border-[#E8D9F0] bg-[#FCFAFD] p-5"
+                                                    >
+
+                                                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#EDE0F5] text-sm font-bold text-[#7A5C92]">
+
+                                                            {index + 1}
+
+                                                        </div>
+
+                                                        <div>
+
+                                                            <h4 className="font-semibold text-gray-800">
+
+                                                                {materi.judul}
+
+                                                            </h4>
+
+                                                            <p className="mt-1 text-sm leading-relaxed text-gray-500">
+
+                                                                {materi.deskripsi ||
+                                                                    "Deskripsi materi belum tersedia."}
+
+                                                            </p>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                )
+                                            )}
+
+                                        </div>
+
+                                    )}
+
+                                </div>
+
+                                {/* BACK */}
+                                <button
+                                    onClick={() => navigate(-1)}
+                                    className="mt-8 inline-flex items-center gap-2 rounded-2xl border border-[#E8D9F0] bg-white px-5 py-3 text-sm font-semibold text-gray-600 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#D8BEEA] hover:bg-[#FAF7FC] hover:text-[#7A5C92] hover:shadow-md"
+                                >
 
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -245,174 +322,97 @@ export default function Checkout() {
                                         viewBox="0 0 24 24"
                                         strokeWidth={2}
                                         stroke="currentColor"
-                                        className={`h-5 w-5 text-[#7A5C92] transition ${showMateri
-                                                ? "rotate-180"
-                                                : ""
-                                            }`}
+                                        className="h-4 w-4"
                                     >
 
                                         <path
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
-                                            d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                                            d="M15.75 19.5 8.25 12l7.5-7.5"
                                         />
 
                                     </svg>
 
+                                    Kembali
+
                                 </button>
 
-                                {showMateri && (
-
-                                    <div className="mt-5 space-y-4">
-
-                                        {materis.map(
-                                            (
-                                                materi,
-                                                index
-                                            ) => (
-
-                                                <div
-                                                    key={materi.id}
-                                                    className="flex items-start gap-4 rounded-2xl border border-[#E8D9F0] bg-[#FCFAFD] p-5"
-                                                >
-
-                                                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#EDE0F5] text-sm font-bold text-[#7A5C92]">
-
-                                                        {index + 1}
-
-                                                    </div>
-
-                                                    <div>
-
-                                                        <h4 className="font-semibold text-gray-800">
-
-                                                            {materi.judul}
-
-                                                        </h4>
-
-                                                        <p className="mt-1 text-sm leading-relaxed text-gray-500">
-
-                                                            {materi.deskripsi ||
-                                                                "Deskripsi materi belum tersedia."}
-
-                                                        </p>
-
-                                                    </div>
-
-                                                </div>
-
-                                            )
-                                        )}
-
-                                    </div>
-
-                                )}
-
                             </div>
 
-                            {/* BACK */}
-                            <button
-                                onClick={() => navigate(-1)}
-                                className="mt-8 inline-flex items-center gap-2 rounded-2xl border border-[#E8D9F0] bg-white px-5 py-3 text-sm font-semibold text-gray-600 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#D8BEEA] hover:bg-[#FAF7FC] hover:text-[#7A5C92] hover:shadow-md"
-                            >
+                            {/* RIGHT */}
+                            <div className="flex flex-col justify-between bg-gradient-to-br from-[#7A5C92] to-[#8B5FB0] p-8 text-white lg:p-10">
 
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={2}
-                                    stroke="currentColor"
-                                    className="h-4 w-4"
-                                >
+                                <div>
 
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M15.75 19.5 8.25 12l7.5-7.5"
-                                    />
+                                    <div className="rounded-3xl bg-white/10 p-6 backdrop-blur">
 
-                                </svg>
+                                        <p className="text-sm opacity-80">
 
-                                Kembali
-
-                            </button>
-
-                        </div>
-
-                        {/* RIGHT */}
-                        <div className="flex flex-col justify-between bg-gradient-to-br from-[#7A5C92] to-[#8B5FB0] p-8 text-white lg:p-10">
-
-                            <div>
-
-                                <div className="rounded-3xl bg-white/10 p-6 backdrop-blur">
-
-                                    <p className="text-sm opacity-80">
-
-                                        Total Pembayaran
-
-                                    </p>
-
-                                    <h2 className="mt-3 text-4xl font-bold">
-
-                                        Rp{" "}
-
-                                        {Number(
-                                            program.harga || 0
-                                        ).toLocaleString(
-                                            "id-ID"
-                                        )}
-
-                                    </h2>
-
-                                </div>
-
-                                <div className="mt-8 space-y-4">
-
-                                    <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-
-                                        <h3 className="font-semibold">
-
-                                            Pembayaran Aman
-
-                                        </h3>
-
-                                        <p className="mt-2 text-sm leading-relaxed text-white/70">
-
-                                            Pembayaran diproses
-                                            melalui Midtrans dengan
-                                            metode pembayaran yang
-                                            aman dan terpercaya.
+                                            Total Pembayaran
 
                                         </p>
+
+                                        <h2 className="mt-3 text-4xl font-bold">
+
+                                            Rp{" "}
+
+                                            {Number(
+                                                program.harga || 0
+                                            ).toLocaleString(
+                                                "id-ID"
+                                            )}
+
+                                        </h2>
 
                                     </div>
 
-                                    <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                                    <div className="mt-8 space-y-4">
 
-                                        <h3 className="font-semibold">
+                                        <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
 
-                                            Aktivasi Kelas
+                                            <h3 className="font-semibold">
 
-                                        </h3>
+                                                Pembayaran Aman
 
-                                        <p className="mt-2 text-sm leading-relaxed text-white/70">
+                                            </h3>
 
-                                            Setelah pembayaran
-                                            dikonfirmasi admin,
-                                            kelas akan otomatis
-                                            muncul di dashboard
-                                            Anda.
+                                            <p className="mt-2 text-sm leading-relaxed text-white/70">
 
-                                        </p>
+                                                Pembayaran diproses
+                                                melalui Midtrans dengan
+                                                metode pembayaran yang
+                                                aman dan terpercaya.
+
+                                            </p>
+
+                                        </div>
+
+                                        <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+
+                                            <h3 className="font-semibold">
+
+                                                Aktivasi Kelas
+
+                                            </h3>
+
+                                            <p className="mt-2 text-sm leading-relaxed text-white/70">
+
+                                                Setelah pembayaran
+                                                dikonfirmasi admin,
+                                                kelas akan otomatis
+                                                muncul di dashboard
+                                                Anda.
+
+                                            </p>
+
+                                        </div>
 
                                     </div>
 
                                 </div>
 
-                            </div>
-
-                            {/* CTA */}
-                            <div className="mt-10">
+                                {/* CTA */}
+                                <div className="mt-10">
 
                                     <div className="mb-6 rounded-2xl border border-yellow-300 bg-yellow-50 p-4 text-sm">
                                         <h3 className="font-semibold text-yellow-800">
@@ -445,135 +445,135 @@ export default function Checkout() {
                                             : "Bayar Sekarang"}
                                     </button>
 
-                                <p className="mt-4 text-center text-xs text-white/60">
+                                    <p className="mt-4 text-center text-xs text-white/60">
 
-                                    Dengan melanjutkan,
-                                    Anda menyetujui syarat
-                                    dan ketentuan VernonEdu
+                                        Dengan melanjutkan,
+                                        Anda menyetujui syarat
+                                        dan ketentuan VernonEdu
 
-                                </p>
+                                    </p>
+
+                                </div>
 
                             </div>
 
                         </div>
 
-                    </div>
-
-                </motion.div>
-
-            </div>
-
-        </div>
-
-        {/* MODAL KONFIRMASI */}
-        {showConfirm && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-
-                    <h2 className="text-xl font-bold text-gray-800">
-                        Konfirmasi Pembayaran
-                    </h2>
-
-                    <p className="mt-4 text-sm text-gray-600">
-                        Anda akan membeli program:
-                    </p>
-
-                    <div className="mt-4 rounded-2xl bg-[#F8F3FB] p-4">
-                        <p className="font-semibold text-[#7A5C92]">
-                            {program?.name}
-                        </p>
-
-                        <p className="mt-2 text-lg font-bold text-gray-800">
-                            Rp{" "}
-                            {Number(
-                                program?.harga || 0
-                            ).toLocaleString("id-ID")}
-                        </p>
-                    </div>
-
-                    <div className="mt-4 rounded-2xl border border-yellow-300 bg-yellow-50 p-4">
-                        <ul className="list-disc space-y-1 pl-5 text-sm text-yellow-700">
-                            <li>
-                                Pastikan program yang dipilih sudah benar.
-                            </li>
-                            <li>
-                                Program yang sudah dibeli tidak dapat dibeli kembali.
-                            </li>
-                            <li>
-                                Pembayaran diproses melalui Midtrans.
-                            </li>
-                            <li>
-                                Akses materi diberikan setelah pembayaran berhasil.
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div className="mt-6 flex gap-3">
-                        <button
-                            onClick={() => setShowConfirm(false)}
-                            className="flex-1 rounded-2xl border border-gray-300 py-3 font-medium text-gray-700"
-                        >
-                            Batal
-                        </button>
-
-                        <button
-                            onClick={processCheckout}
-                            className="flex-1 rounded-2xl bg-[#7A5C92] py-3 font-medium text-white"
-                        >
-                            Lanjutkan
-                        </button>
-                    </div>
+                    </motion.div>
 
                 </div>
-            </div>
-        )}
 
-        {/* MODAL PERINGATAN */}
-        {showWarning && (
-            <div
-                className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-                onClick={() => setShowWarning(false)}
-            >
-                <div
-                    className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <div className="flex justify-center">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-8 w-8 text-red-600"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"
-                                />
-                            </svg>
+            </div>
+
+            {/* MODAL KONFIRMASI */}
+            {showConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+
+                        <h2 className="text-xl font-bold text-gray-800">
+                            Konfirmasi Pembayaran
+                        </h2>
+
+                        <p className="mt-4 text-sm text-gray-600">
+                            Anda akan membeli program:
+                        </p>
+
+                        <div className="mt-4 rounded-2xl bg-[#F8F3FB] p-4">
+                            <p className="font-semibold text-[#7A5C92]">
+                                {program?.name}
+                            </p>
+
+                            <p className="mt-2 text-lg font-bold text-gray-800">
+                                Rp{" "}
+                                {Number(
+                                    program?.harga || 0
+                                ).toLocaleString("id-ID")}
+                            </p>
                         </div>
+
+                        <div className="mt-4 rounded-2xl border border-yellow-300 bg-yellow-50 p-4">
+                            <ul className="list-disc space-y-1 pl-5 text-sm text-yellow-700">
+                                <li>
+                                    Pastikan program yang dipilih sudah benar.
+                                </li>
+                                <li>
+                                    Program yang sudah dibeli tidak dapat dibeli kembali.
+                                </li>
+                                <li>
+                                    Pembayaran diproses melalui Midtrans.
+                                </li>
+                                <li>
+                                    Akses materi diberikan setelah pembayaran berhasil.
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div className="mt-6 flex gap-3">
+                            <button
+                                onClick={() => setShowConfirm(false)}
+                                className="flex-1 rounded-2xl border border-gray-300 py-3 font-medium text-gray-700"
+                            >
+                                Batal
+                            </button>
+
+                            <button
+                                onClick={processCheckout}
+                                className="flex-1 rounded-2xl bg-[#7A5C92] py-3 font-medium text-white"
+                            >
+                                Lanjutkan
+                            </button>
+                        </div>
+
                     </div>
-
-                    <h2 className="mt-4 text-center text-xl font-bold text-gray-800">
-                        Peringatan
-                    </h2>
-
-                    <p className="mt-3 text-center text-gray-600">
-                        {warningMessage}
-                    </p>
-
-                    <button
-                        onClick={() => setShowWarning(false)}
-                        className="mt-6 w-full rounded-2xl bg-[#7A5C92] py-3 font-semibold text-white"
-                    >
-                        Tutup
-                    </button>
                 </div>
-            </div>
-        )}
-    </>
-);
+            )}
+
+            {/* MODAL PERINGATAN */}
+            {showWarning && (
+                <div
+                    className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+                    onClick={() => setShowWarning(false)}
+                >
+                    <div
+                        className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex justify-center">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-8 w-8 text-red-600"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <h2 className="mt-4 text-center text-xl font-bold text-gray-800">
+                            Peringatan
+                        </h2>
+
+                        <p className="mt-3 text-center text-gray-600">
+                            {warningMessage}
+                        </p>
+
+                        <button
+                            onClick={() => setShowWarning(false)}
+                            className="mt-6 w-full rounded-2xl bg-[#7A5C92] py-3 font-semibold text-white"
+                        >
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            )}
+        </>
+    );
 }

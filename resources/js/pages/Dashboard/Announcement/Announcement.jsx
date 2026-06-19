@@ -9,7 +9,7 @@ export default function Announcement() {
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/announcements");
+        const res = await fetch("/api/announcements");
         const data = await res.json();
 
         const mapped = data.map(item => ({

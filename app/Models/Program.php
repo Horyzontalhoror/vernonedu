@@ -17,16 +17,17 @@ class Program extends Model
         return $this->hasMany(SubProgram::class);
     }
 
+    protected static function boot()
+    {
+        parent::boot();
 
-    // protected static function boot()
-    // {
-    //     parent::boot();
+        // Hapus cache program dan subprogram ketika data Program disimpan atau dihapus
+        static::saved(function () {
+            \Illuminate\Support\Facades\Cache::forget('programs_with_subprograms');
+        });
 
-    //     static::creating(function ($program) {
-    //         $slug = Str::slug($program->nama);
-    //         $count = \App\Models\Program::where('slug', 'LIKE', "$slug%")->count();
-
-    //         $program->slug = $count ? "{$slug}-{$count}" : $slug;
-    //     });
-    // }
+        static::deleted(function () {
+            \Illuminate\Support\Facades\Cache::forget('programs_with_subprograms');
+        });
+    }
 }

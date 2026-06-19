@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 class TransactionController extends Controller
 {
     // =============================
-    // 🔥 CREATE TRANSACTION (MIDTRANS)
+    // CREATE TRANSACTION (MIDTRANS)
     // =============================
     public function createTransaction(Request $request)
     {
@@ -22,7 +22,6 @@ class TransactionController extends Controller
         ]);
 
         $user = auth()->user();
-
         $subProgram = SubProgram::findOrFail(
             $request->sub_program_id
         );

@@ -17,7 +17,7 @@ export default function MyCalendar() {
         const token = localStorage.getItem("token");
 
         const res = await fetch(
-          "http://localhost:8000/api/my-schedule",
+          "/api/my-schedule",
           {
             headers: {
               Authorization: `Bearer ${token}`,

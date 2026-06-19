@@ -38,6 +38,9 @@ class CourseController extends Controller
 
         }
 
+        // Eager load materis to perform all computations in-memory (solving N+1 queries)
+        $peserta->load('materis');
+
         /*
         |--------------------------------------------------------------------------
         | TRANSACTION SUCCESS
@@ -89,39 +92,18 @@ class CourseController extends Controller
 
                 /*
                 |--------------------------------------------------------------------------
-                | PROGRESS
+                | MATERI SELESAI & PROGRESS (In-Memory)
                 |--------------------------------------------------------------------------
                 */
 
-                $progress = $peserta
-                    ->getProgressBySubProgram(
-                        $subProgram->id
-                    );
-
-                /*
-                |--------------------------------------------------------------------------
-                | MATERI SELESAI
-                |--------------------------------------------------------------------------
-                */
-
-                $materiSelesai = $peserta
-                    ->materis()
-
-                    ->whereHas(
-                        'subProgram',
-                        fn ($q) =>
-                            $q->where(
-                                'id',
-                                $subProgram->id
-                            )
-                    )
-
-                    ->wherePivot(
-                        'status',
-                        'selesai'
-                    )
-
+                $materiSelesai = $peserta->materis
+                    ->where('sub_program_id', $subProgram->id)
+                    ->where('pivot.status', 'selesai')
                     ->count();
+
+                $progress = $totalMateri > 0
+                    ? round(($materiSelesai / $totalMateri) * 100)
+                    : 0;
 
                 return [
 
@@ -219,6 +201,9 @@ class CourseController extends Controller
 
         }
 
+        // Eager load materis to perform all status checks in-memory (solving N+1 queries)
+        $peserta->load('materis');
+
         /*
         |--------------------------------------------------------------------------
         | COURSE
@@ -266,16 +251,7 @@ class CourseController extends Controller
                 $materi
             ) use ($peserta) {
 
-                $progress = $peserta
-
-                    ->materis()
-
-                    ->where(
-                        'materi_id',
-                        $materi->id
-                    )
-
-                    ->first();
+                $progress = $peserta->materis->firstWhere('id', $materi->id);
 
                 return [
 
@@ -315,17 +291,6 @@ class CourseController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | PROGRESS
-        |--------------------------------------------------------------------------
-        */
-
-        $progress = $peserta
-            ->getProgressBySubProgram(
-                $subProgram->id
-            );
-
-        /*
-        |--------------------------------------------------------------------------
         | MATERI SELESAI
         |--------------------------------------------------------------------------
         */
@@ -337,6 +302,16 @@ class CourseController extends Controller
                     'selesai'
                 )
                 ->count();
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROGRESS (In-Memory)
+        |--------------------------------------------------------------------------
+        */
+
+        $progress = $totalMateri > 0
+            ? round(($materiSelesai / $totalMateri) * 100)
+            : 0;
 
         /*
         |--------------------------------------------------------------------------

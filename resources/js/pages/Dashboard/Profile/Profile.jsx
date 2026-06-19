@@ -50,7 +50,7 @@ export default function Profile() {
 
       const res = await fetch(
 
-        "http://localhost:8000/api/profile",
+        "/api/profile",
 
         {
           headers: {
@@ -113,7 +113,7 @@ export default function Profile() {
 
       await fetch(
 
-        "http://localhost:8000/api/profile",
+        "/api/profile",
 
         {
 

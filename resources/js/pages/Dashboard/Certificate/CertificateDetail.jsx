@@ -22,7 +22,7 @@ export default function CertificateDetail() {
 
         const res = await fetch(
 
-          `http://localhost:8000/api/my-certificates/${slug}`,
+          `/api/my-certificates/${slug}`,
 
           {
             headers: {

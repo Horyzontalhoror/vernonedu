@@ -41,7 +41,7 @@ export default function Router() {
         try {
 
             const res = await fetch(
-                "http://localhost:8000/api/me",
+                "/api/me",
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,

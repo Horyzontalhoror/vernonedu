@@ -66,4 +66,18 @@ class SubProgram extends Model
             Jadwal::class
         );
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Hapus cache program dan subprogram ketika data SubProgram disimpan atau dihapus
+        static::saved(function () {
+            \Illuminate\Support\Facades\Cache::forget('programs_with_subprograms');
+        });
+
+        static::deleted(function () {
+            \Illuminate\Support\Facades\Cache::forget('programs_with_subprograms');
+        });
+    }
 }

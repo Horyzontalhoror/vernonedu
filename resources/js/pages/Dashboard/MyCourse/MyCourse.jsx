@@ -38,7 +38,7 @@ export default function MyCourse() {
 
         const res = await fetch(
 
-          "http://localhost:8000/api/my-courses",
+          "/api/my-courses",
 
           {
             headers: {

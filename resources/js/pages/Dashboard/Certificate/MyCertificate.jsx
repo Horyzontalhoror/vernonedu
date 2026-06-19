@@ -16,7 +16,7 @@ export default function MyCertificate() {
           localStorage.getItem("token");
 
         const res = await fetch(
-          "http://localhost:8000/api/my-certificates",
+          "/api/my-certificates",
           {
             headers: {
               Authorization: `Bearer ${token}`,
