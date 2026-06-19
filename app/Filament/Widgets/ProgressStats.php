@@ -40,15 +40,15 @@ class ProgressStats extends BaseWidget
                 ->descriptionIcon('heroicon-m-book-open')
                 ->color('warning'),
 
-            Stat::make('Total Kehadiran', number_format($totalHadir))
-                ->description('Progress tercatat')
-                ->descriptionIcon('heroicon-m-clipboard-document-check')
-                ->color('success'),
+            // Stat::make('Total Kehadiran', number_format($totalHadir))
+            //     ->description('Progress tercatat')
+            //     ->descriptionIcon('heroicon-m-clipboard-document-check')
+            //     ->color('success'),
 
-            Stat::make('Persentase Kehadiran', $persentase . '%')
-                ->description('Target minimal 80%')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->color($persentase >= 80 ? 'success' : 'danger'),
+            // Stat::make('Persentase Kehadiran', $persentase . '%')
+            //     ->description('Target minimal 80%')
+            //     ->descriptionIcon('heroicon-m-arrow-trending-up')
+            //     ->color($persentase >= 80 ? 'success' : 'danger'),
         ];
     }
 }

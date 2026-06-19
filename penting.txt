@@ -1,0 +1,9 @@
+php artisan serve
+npm run dev
+php artisan reverb:start
+php artisan queue:work
+composer dump-autoload -o
+
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache

@@ -1,0 +1,44 @@
+services:
+
+  app:
+    build: .
+
+    container_name: vernonedu-app
+
+    ports:
+      - "8000:8000"
+      - "5173:5173"
+      - "8080:8080"
+
+    volumes:
+      - .:/var/www
+      - /var/www/node_modules
+
+    depends_on:
+      - mysql
+
+    command: >
+      sh -c "
+      php artisan migrate &&
+      php artisan serve --host=0.0.0.0 --port=8000
+      "
+
+  mysql:
+    image: mysql:8.0
+
+    container_name: vernonedu-mysql
+
+    restart: always
+
+    environment:
+      MYSQL_DATABASE: vernonedu
+      MYSQL_ROOT_PASSWORD: root
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

@@ -184,25 +184,25 @@ class CertificateForm
                         |--------------------------------------------------------------------------
                         */
 
-                        FileUpload::make('file_path')
+                        // FileUpload::make('file_path')
 
-                            ->label('Upload Sertifikat')
+                        //     ->label('Upload Sertifikat')
 
-                            ->directory('certificates')
+                        //     ->directory('certificates')
 
-                            ->downloadable()
+                        //     ->downloadable()
 
-                            ->openable()
+                        //     ->openable()
 
-                            ->previewable()
+                        //     ->previewable()
 
-                            ->acceptedFileTypes([
-                                'application/pdf',
-                                'image/png',
-                                'image/jpeg',
-                            ])
+                        //     ->acceptedFileTypes([
+                        //         'application/pdf',
+                        //         'image/png',
+                        //         'image/jpeg',
+                        //     ])
 
-                            ->maxSize(10240),
+                        //     ->maxSize(10240),
 
                         /*
                         |--------------------------------------------------------------------------

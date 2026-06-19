@@ -48,9 +48,7 @@ export default function AuthModal({ open, onClose }) {
         try {
             const res = await fetch("http://localhost:8000/api/login", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json", },
                 body: JSON.stringify(loginData),
             });
 
@@ -111,20 +109,24 @@ export default function AuthModal({ open, onClose }) {
         try {
             const res = await fetch("http://localhost:8000/api/register", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json", "Accept": "application/json", },
                 body: JSON.stringify(registerData),
             });
 
-            const data = await res.json().catch(() => ({}));
+            const data = await res.json();
 
             if (!res.ok) {
-                alert(data.message || "Register gagal");
+                setErrors({
+                    email: data.errors?.email?.[0] || "",
+                    no_telepon: data.errors?.no_telepon?.[0] || "",
+                    password: data.errors?.password?.[0] || "",
+                    password_confirmation: data.errors?.password_confirmation?.[0] || "",
+                });
+
                 return;
             }
 
-            alert("Register berhasil, tunggu validasi admin");
+            alert(data.message);
             setTab("login");
 
         } catch (err) {
@@ -144,35 +146,21 @@ export default function AuthModal({ open, onClose }) {
                 {/* LEFT */}
                 <div className="relative hidden md:block">
                     <img src={img} className="h-full w-full object-cover" />
-                    <img
-                        src={logo}
-                        alt="Logo"
-                        className="absolute top-4 left-4 h-10 object-contain"
-                    />
+                    <img src={logo} alt="Logo" className="absolute top-4 left-4 h-10 object-contain" />
                 </div>
 
                 {/* RIGHT */}
                 <div className="p-10 relative">
-                    <button
-                        onClick={onClose}
-                        className="absolute right-6 top-4 text-gray-500"
-                    >
+                    <button onClick={onClose} className="absolute right-6 top-4 text-gray-500" >
                         ✕
                     </button>
 
                     {/* TAB */}
                     <div className="flex justify-between border-b pb-3 mb-6">
-                        <button
-                            onClick={() => setTab("login")}
-                            className={tab === "login" ? "text-blue-500 font-semibold" : ""}
-                        >
+                        <button onClick={() => setTab("login")} className={tab === "login" ? "text-blue-500 font-semibold" : ""} >
                             Masuk
                         </button>
-
-                        <button
-                            onClick={() => setTab("register")}
-                            className={tab === "register" ? "text-blue-500 font-semibold" : ""}
-                        >
+                        <button onClick={() => setTab("register")} className={tab === "register" ? "text-blue-500 font-semibold" : ""} >
                             Daftar
                         </button>
                     </div>
@@ -183,38 +171,14 @@ export default function AuthModal({ open, onClose }) {
                             <h2 className="text-xl font-bold">Masuk ke akun VernonEdu</h2>
 
                             <div>
-                                <input
-                                    type="text"
-                                    required
-                                    placeholder="Email atau nomor telepon"
-                                    className="w-full border rounded-lg p-3"
-                                    value={loginData.login}
-                                    onChange={(e) =>
-                                        setLoginData({
-                                            ...loginData,
-                                            login: e.target.value,
-                                        })
-                                    }
-                                />
+                                <input type="text" required placeholder="Email atau nomor telepon" className="w-full border rounded-lg p-3" value={loginData.login} onChange={(e) => setLoginData({ ...loginData, login: e.target.value, }) } />
                                 {errors.login && (
                                     <p className="text-red-500 text-sm">{errors.login}</p>
                                 )}
                             </div>
 
                             <div>
-                                <input
-                                    type="password"
-                                    required
-                                    placeholder="Masukkan kata sandi"
-                                    className="w-full border rounded-lg p-3"
-                                    value={loginData.password}
-                                    onChange={(e) =>
-                                        setLoginData({
-                                            ...loginData,
-                                            password: e.target.value,
-                                        })
-                                    }
-                                />
+                                <input type="password" required placeholder="Masukkan kata sandi" className="w-full border rounded-lg p-3" value={loginData.password} onChange={(e) => setLoginData({ ...loginData, password: e.target.value, }) } />
                                 {errors.password && (
                                     <p className="text-red-500 text-sm">{errors.password}</p>
                                 )}
@@ -234,19 +198,22 @@ export default function AuthModal({ open, onClose }) {
                     {tab === "register" && (
                         <form onSubmit={handleRegister} className="space-y-4">
                             <h2 className="text-xl font-bold">Daftar Akun VernonEdu</h2>
+                            <div className="rounded-2xl border border-red-100 bg-red-50 p-5">
+                                <h3 className="font-semibold text-red-600">
+                                    Verifikasi Akun
+                                </h3>
+                                <p className="mt-2 text-sm leading-relaxed text-red-500">
+
+                                    Setelah pendaftaran berhasil, akun Anda akan ditinjau
+                                    dan diverifikasi oleh admin VernonEdu.
+                                    Proses ini mungkin memerlukan beberapa saat.
+                                </p>
+                            </div>
 
                             <div>
-                                <input
-                                    type="text"
-                                    required
-                                    placeholder="Nama lengkap"
-                                    className="w-full border rounded-lg p-3"
-                                    value={registerData.nama}
+                                <input type="text" required placeholder="Nama lengkap" className="w-full border rounded-lg p-3" value={registerData.nama}
                                     onChange={(e) =>
-                                        setRegisterData({
-                                            ...registerData,
-                                            nama: e.target.value,
-                                        })
+                                        setRegisterData({ ...registerData, nama: e.target.value, })
                                     }
                                 />
                                 {errors.nama && (
@@ -255,17 +222,9 @@ export default function AuthModal({ open, onClose }) {
                             </div>
 
                             <div>
-                                <input
-                                    type="email"
-                                    required
-                                    placeholder="Email"
-                                    className="w-full border rounded-lg p-3"
-                                    value={registerData.email}
+                                <input type="email" required placeholder="Email" className="w-full border rounded-lg p-3" value={registerData.email}
                                     onChange={(e) =>
-                                        setRegisterData({
-                                            ...registerData,
-                                            email: e.target.value,
-                                        })
+                                        setRegisterData({ ...registerData, email: e.target.value, })
                                     }
                                 />
                                 {errors.email && (
@@ -274,17 +233,9 @@ export default function AuthModal({ open, onClose }) {
                             </div>
 
                             <div>
-                                <input
-                                    type="tel"
-                                    required
-                                    placeholder="Nomor telpon/WA"
-                                    className="w-full border rounded-lg p-3"
-                                    value={registerData.no_telepon}
+                                <input type="tel" required placeholder="Nomor telpon/WA" className="w-full border rounded-lg p-3" value={registerData.no_telepon}
                                     onChange={(e) =>
-                                        setRegisterData({
-                                            ...registerData,
-                                            no_telepon: e.target.value,
-                                        })
+                                        setRegisterData({ ...registerData, no_telepon: e.target.value, })
                                     }
                                 />
                                 {errors.no_telepon && (
@@ -293,17 +244,9 @@ export default function AuthModal({ open, onClose }) {
                             </div>
 
                             <div>
-                                <input
-                                    type="password"
-                                    required
-                                    placeholder="Password"
-                                    className="w-full border rounded-lg p-3"
-                                    value={registerData.password}
+                                <input type="password" required placeholder="Password" className="w-full border rounded-lg p-3" value={registerData.password}
                                     onChange={(e) =>
-                                        setRegisterData({
-                                            ...registerData,
-                                            password: e.target.value,
-                                        })
+                                        setRegisterData({ ...registerData, password: e.target.value, })
                                     }
                                 />
                                 {errors.password && (
@@ -312,17 +255,9 @@ export default function AuthModal({ open, onClose }) {
                             </div>
 
                             <div>
-                                <input
-                                    type="password"
-                                    required
-                                    placeholder="Konfirmasi Password"
-                                    className="w-full border rounded-lg p-3"
-                                    value={registerData.password_confirmation}
+                                <input type="password" required placeholder="Konfirmasi Password" className="w-full border rounded-lg p-3" value={registerData.password_confirmation}
                                     onChange={(e) =>
-                                        setRegisterData({
-                                            ...registerData,
-                                            password_confirmation: e.target.value,
-                                        })
+                                        setRegisterData({ ...registerData, password_confirmation: e.target.value, })
                                     }
                                 />
                                 {errors.password_confirmation && (
@@ -332,11 +267,7 @@ export default function AuthModal({ open, onClose }) {
                                 )}
                             </div>
 
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full bg-blue-400 text-white py-3 rounded-lg disabled:opacity-50"
-                            >
+                            <button type="submit" disabled={loading} className="w-full bg-blue-400 text-white py-3 rounded-lg disabled:opacity-50" >
                                 {loading ? "Loading..." : "Daftar"}
                             </button>
                         </form>
