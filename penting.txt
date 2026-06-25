@@ -7,3 +7,25 @@ composer dump-autoload -o
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+
+Catatan penting: warning tempnam(): file created in the system's temporary directory tidak selalu berarti /tmp rusak. Warning ini juga muncul ketika library mencoba membuat temporary file pada folder tujuan yang tidak writable. Pada Laravel + Filament, sering terjadi saat folder berikut tidak dapat ditulis:
+
+storage/
+bootstrap/cache/
+storage/app/livewire-tmp/
+
+Jalankan juga:
+
+docker compose exec web-app bash
+
+Di dalam container:
+
+mkdir -p storage/app/livewire-tmp
+chown -R sail:sail storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+
+docker compose down
+docker compose build --no-cache web-app
+docker compose up -d
+
+docker compose config --services

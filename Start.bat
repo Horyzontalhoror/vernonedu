@@ -5,14 +5,10 @@ echo ================================
 echo Menjalankan VernonEdu...
 echo ================================
 
-:: Jalankan Vite / NPM Dev
 start "Vite Dev Server" cmd /c "npm run dev"
-
-:: Jalankan Laravel Server
 start "Laravel Server" cmd /c "php artisan serve"
-
-:: Jalankan Laravel Reverb
 start "Laravel Reverb" cmd /c "php artisan reverb:start"
+start "Laravel Queue" cmd /c "php artisan queue:work"
 
 echo ================================
 echo Semua service berhasil dijalankan
