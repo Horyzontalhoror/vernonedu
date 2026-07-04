@@ -84,6 +84,22 @@ export default function AuthModal({ open, onClose }) {
             return;
         }
 
+        if (registerData.nama.trim().length < 3) {
+            setErrors({
+                nama: "Nama minimal 3 karakter.",
+            });
+            return;
+        }
+
+        const namaRegex = /^[A-Za-zÀ-ÿ\s]+$/;
+
+        if (!namaRegex.test(registerData.nama.trim())) {
+            setErrors({
+                nama: "Nama hanya boleh berisi huruf dan spasi.",
+            });
+            return;
+        }
+
         if (!registerData.email.trim()) {
             setErrors({ email: "Email wajib diisi" });
             return;
@@ -93,14 +109,35 @@ export default function AuthModal({ open, onClose }) {
             setErrors({ no_telepon: "Nomor telepon wajib diisi" });
             return;
         }
+        const phoneRegex = /^\+62[1-9][0-9]{8,11}$/;
 
+        if (!phoneRegex.test(registerData.no_telepon)) {
+            setErrors({
+                no_telepon:
+                    "Nomor telepon harus menggunakan format +628xxxxxxxxx.",
+            });
+            return;
+        }
         if (!registerData.password.trim()) {
             setErrors({ password: "Password wajib diisi" });
             return;
         }
 
+        // Password minimal 8 karakter, harus mengandung huruf dan angka
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+
+        if (!passwordRegex.test(registerData.password)) {
+            setErrors({
+                password:
+                    "Password minimal 8 karakter dan harus mengandung huruf serta angka.",
+            });
+            return;
+        }
+
         if (registerData.password !== registerData.password_confirmation) {
-            setErrors({ password_confirmation: "Password tidak sama" });
+            setErrors({
+                password_confirmation: "Password tidak sama",
+            });
             return;
         }
 
@@ -233,18 +270,36 @@ export default function AuthModal({ open, onClose }) {
                             </div>
 
                             <div>
-                                <input type="tel" required placeholder="Nomor telpon/WA" className="w-full border rounded-lg p-3" value={registerData.no_telepon}
-                                    onChange={(e) =>
-                                        setRegisterData({ ...registerData, no_telepon: e.target.value, })
-                                    }
+                                <input type="tel" required placeholder="+628123456789" className="w-full border rounded-lg p-3" value={registerData.no_telepon}
+                                    onChange={(e) => {
+                                        let value = e.target.value.replace(/\s+/g, "");
+                                        // Jika diawali 08 -> ubah menjadi +628
+                                        if (value.startsWith("08")) {
+                                            value = "+62" + value.substring(1);
+                                        }
+                                        // Jika diawali 628 -> tambahkan +
+                                        else if (value.startsWith("628")) {
+                                            value = "+" + value;
+                                        }
+                                        setRegisterData({ ...registerData, no_telepon: value, });
+                                    }}
                                 />
                                 {errors.no_telepon && (
-                                    <p className="text-red-500 text-sm">{errors.no_telepon}</p>
+                                    <p className="text-red-500 text-sm">
+                                        {errors.no_telepon}
+                                    </p>
                                 )}
                             </div>
 
                             <div>
-                                <input type="password" required placeholder="Password" className="w-full border rounded-lg p-3" value={registerData.password}
+                                <p className="text-xs text-red-500 mt-1">
+                                    Minimal 8 karakter dan harus mengandung huruf serta angka.
+                                </p>
+                            </div>
+
+                            <div>
+                                <input
+                                    type="password" required minLength={8} placeholder="Password (contoh: user1234)" className="w-full border rounded-lg p-3" value={registerData.password}
                                     onChange={(e) =>
                                         setRegisterData({ ...registerData, password: e.target.value, })
                                     }
@@ -255,7 +310,7 @@ export default function AuthModal({ open, onClose }) {
                             </div>
 
                             <div>
-                                <input type="password" required placeholder="Konfirmasi Password" className="w-full border rounded-lg p-3" value={registerData.password_confirmation}
+                                <input type="password" required minLength={8} placeholder="Konfirmasi Password (contoh: user1234)" className="w-full border rounded-lg p-3" value={registerData.password_confirmation}
                                     onChange={(e) =>
                                         setRegisterData({ ...registerData, password_confirmation: e.target.value, })
                                     }
